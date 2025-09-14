@@ -53,32 +53,45 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+
         ChessPiece currPiece = board.getPiece(myPosition);
-        // If the piece is a bishop
+
+        // Bishop Move Calculation
         if (currPiece.getPieceType() == PieceType.BISHOP) {
             PieceMovesCalculator bishopMovesCalc = new BishopMovesCalculator();
             Collection<ChessMove> bishopMoves = bishopMovesCalc.pieceMoves(board, myPosition);
             return bishopMoves;
+
+        // King Move Calculation
         } else if (currPiece.getPieceType() == PieceType.KING){
             PieceMovesCalculator kingMovesCalc = new KingMovesCalculator();
             Collection<ChessMove> kingMoves = kingMovesCalc.pieceMoves(board, myPosition);
             return kingMoves;
+
+        // Knight Move Calculation
         } else if (currPiece.getPieceType() == PieceType.KNIGHT){
             PieceMovesCalculator knightMovesCalc = new KnightMovesCalculator();
             Collection<ChessMove> knightMoves = knightMovesCalc.pieceMoves(board, myPosition);
             return knightMoves;
+
+        // Pawn Move Calculation
         } else if (currPiece.getPieceType() == PieceType.PAWN){
             PieceMovesCalculator pawnMovesCalc = new PawnMovesCalculator();
             Collection<ChessMove> pawnMoves = pawnMovesCalc.pieceMoves(board, myPosition);
             return pawnMoves;
+
+        // Queen Move Calculation
         } else if (currPiece.getPieceType() == PieceType.QUEEN){
             PieceMovesCalculator queenMovesCalc = new QueenMovesCalculator();
             Collection<ChessMove> queenMoves = queenMovesCalc.pieceMoves(board, myPosition);
             return queenMoves;
+
+        // Rook Move Calculation
         } else if (currPiece.getPieceType() == PieceType.ROOK){
             PieceMovesCalculator rookMovesCalc = new RookMovesCalculator();
             Collection<ChessMove> rookMoves = rookMovesCalc.pieceMoves(board, myPosition);
             return rookMoves;
+
         } else {
             return List.of();
         }
