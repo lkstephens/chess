@@ -2,7 +2,6 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 public class BishopMovesCalculator implements PieceMovesCalculator {
     @Override
@@ -11,7 +10,6 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
         int col = myPosition.getColumn();
         ChessPiece myPiece = board.getPiece(myPosition);
         ChessGame.TeamColor myTeamColor = myPiece.getTeamColor();
-
         Collection<ChessMove> bishopMoves = new ArrayList<>();
 
         // Up-Right
@@ -66,7 +64,7 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
         row = myPosition.getRow();
         col = myPosition.getColumn();
 
-        // Down-Right
+        // Down-Left
         while (row > 1 && col > 1) {
             row--;
             col--;
@@ -92,7 +90,7 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
         row = myPosition.getRow();
         col = myPosition.getColumn();
 
-        // Down-Right
+        // Up-Left
         while (row < 8 && col > 1) {
             row++;
             col--;
@@ -118,3 +116,5 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
         return bishopMoves;
     }
 }
+
+
