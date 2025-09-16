@@ -19,7 +19,7 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
             ChessPosition curr_pos = new ChessPosition(row, col);
             ChessPiece curr_piece = board.getPiece(curr_pos);
 
-            // Position is not occupied by a piece (ASK TA about this warning)
+            // Position is not occupied by a piece
             if (curr_piece == null) {
 
                 bishopMoves.add(new ChessMove(myPosition, curr_pos, null));
@@ -45,7 +45,7 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
             ChessPosition curr_pos = new ChessPosition(row, col);
             ChessPiece curr_piece = board.getPiece(curr_pos);
 
-            // Position is not occupied by a piece (ASK TA about this warning)
+            // Position is not occupied by a piece
             if (curr_piece == null) {
 
                 bishopMoves.add(new ChessMove(myPosition, curr_pos, null));
@@ -71,7 +71,7 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
             ChessPosition curr_pos = new ChessPosition(row, col);
             ChessPiece curr_piece = board.getPiece(curr_pos);
 
-            // Position is not occupied by a piece (ASK TA about this warning)
+            // Position is not occupied by a piece
             if (curr_piece == null) {
 
                 bishopMoves.add(new ChessMove(myPosition, curr_pos, null));
@@ -97,7 +97,7 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
             ChessPosition curr_pos = new ChessPosition(row, col);
             ChessPiece curr_piece = board.getPiece(curr_pos);
 
-            // Position is not occupied by a piece (ASK TA about this warning)
+            // Position is not occupied by a piece
             if (curr_piece == null) {
 
                 bishopMoves.add(new ChessMove(myPosition, curr_pos, null));
