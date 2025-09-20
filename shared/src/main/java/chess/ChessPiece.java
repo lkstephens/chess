@@ -59,7 +59,7 @@ public class ChessPiece {
 
         // Bishop Move Calculation
         if (currPiece.getPieceType() == PieceType.BISHOP) {
-            PieceMovesCalculator bishopMovesCalc = new BishopMovesCalculator();
+            PieceMovesCalculator bishopMovesCalc = new BishopMovesCalculator(new int[][]{{1,1},{1,-1},{-1,-1},{-1,1}}, true);
             Collection<ChessMove> bishopMoves = bishopMovesCalc.pieceMoves(board, myPosition);
             return bishopMoves;
 

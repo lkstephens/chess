@@ -7,7 +7,7 @@ import java.util.Collection;
  * Helper interface to calculate piece moves
  */
 public interface PieceMovesCalculator {
-    // Calculates the possible moves for a certain type of piece
+    // Calculation of Moves
     Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition);
 }
 
