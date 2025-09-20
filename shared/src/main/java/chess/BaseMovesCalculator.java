@@ -31,14 +31,14 @@ public abstract class BaseMovesCalculator implements PieceMovesCalculator{
                 System.out.println("Direction array needs 2 values");
             }
 
-            int x = direction[0];
-            int y = direction[1];
+            int over = direction[0];
+            int up = direction[1];
             int currRow = startRow;
             int currCol = startCol;
 
-            while ((currRow+y) != 0 && (currRow+y) != 9 && (currCol+x) != 0 && (currCol+x) != 9) {
-                currRow += y;
-                currCol += x;
+            while ((currRow+up) >= 1 && (currRow+up) <= 8 && (currCol+over) >= 1 && (currCol+over) <= 8) {
+                currRow += up;
+                currCol += over;
                 ChessPosition currPosition = new ChessPosition(currRow, currCol);
                 ChessPiece currPiece = board.getPiece(currPosition);
 

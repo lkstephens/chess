@@ -65,13 +65,13 @@ public class ChessPiece {
 
         // King Move Calculation
         } else if (currPiece.getPieceType() == PieceType.KING){
-            PieceMovesCalculator kingMovesCalc = new KingMovesCalculator();
+            PieceMovesCalculator kingMovesCalc = new KingMovesCalculator(new int[][]{{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1},{0,1}}, false);
             Collection<ChessMove> kingMoves = kingMovesCalc.pieceMoves(board, myPosition);
             return kingMoves;
 
         // Knight Move Calculation
         } else if (currPiece.getPieceType() == PieceType.KNIGHT){
-            PieceMovesCalculator knightMovesCalc = new KnightMovesCalculator();
+            PieceMovesCalculator knightMovesCalc = new KnightMovesCalculator(new int[][]{{1,2},{2,1},{2,-1},{1,-2},{-1,-2},{-2,-1},{-2,1},{-1,2}}, false);
             Collection<ChessMove> knightMoves = knightMovesCalc.pieceMoves(board, myPosition);
             return knightMoves;
 
@@ -83,13 +83,13 @@ public class ChessPiece {
 
         // Queen Move Calculation
         } else if (currPiece.getPieceType() == PieceType.QUEEN){
-            PieceMovesCalculator queenMovesCalc = new QueenMovesCalculator();
+            PieceMovesCalculator queenMovesCalc = new QueenMovesCalculator(new int[][]{{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1},{0,1}}, true);
             Collection<ChessMove> queenMoves = queenMovesCalc.pieceMoves(board, myPosition);
             return queenMoves;
 
         // Rook Move Calculation
         } else if (currPiece.getPieceType() == PieceType.ROOK){
-            PieceMovesCalculator rookMovesCalc = new RookMovesCalculator();
+            PieceMovesCalculator rookMovesCalc = new RookMovesCalculator(new int[][]{{0,1},{1,0},{0,-1},{-1,0}}, true);
             Collection<ChessMove> rookMoves = rookMovesCalc.pieceMoves(board, myPosition);
             return rookMoves;
 
