@@ -1,7 +1,6 @@
 package chess;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -57,45 +56,16 @@ public class ChessPiece {
 
         ChessPiece currPiece = board.getPiece(myPosition);
 
-        // Bishop Move Calculation
-        if (currPiece.getPieceType() == PieceType.BISHOP) {
-            PieceMovesCalculator bishopMovesCalc = new BishopMovesCalculator(new int[][]{{1,1},{1,-1},{-1,-1},{-1,1}}, true);
-            Collection<ChessMove> bishopMoves = bishopMovesCalc.pieceMoves(board, myPosition);
-            return bishopMoves;
+        PieceMovesCalculator movesCalculator = switch (currPiece.getPieceType()) {
+            case PieceType.BISHOP -> new BishopMovesCalculator(new int[][]{{1, 1}, {1, -1}, {-1, -1}, {-1, 1}}, true);
+            case PieceType.KING -> new KingMovesCalculator(new int[][]{{1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}, {0, 1}}, false);
+            case PieceType.KNIGHT -> new KnightMovesCalculator(new int[][]{{1, 2}, {2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2, -1}, {-2, 1}, {-1, 2}}, false);
+            case PieceType.PAWN -> new PawnMovesCalculator();
+            case PieceType.QUEEN -> new QueenMovesCalculator(new int[][]{{1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}, {0, 1}}, true);
+            case PieceType.ROOK -> new RookMovesCalculator(new int[][]{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}, true);
+        };
 
-        // King Move Calculation
-        } else if (currPiece.getPieceType() == PieceType.KING){
-            PieceMovesCalculator kingMovesCalc = new KingMovesCalculator(new int[][]{{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1},{0,1}}, false);
-            Collection<ChessMove> kingMoves = kingMovesCalc.pieceMoves(board, myPosition);
-            return kingMoves;
-
-        // Knight Move Calculation
-        } else if (currPiece.getPieceType() == PieceType.KNIGHT){
-            PieceMovesCalculator knightMovesCalc = new KnightMovesCalculator(new int[][]{{1,2},{2,1},{2,-1},{1,-2},{-1,-2},{-2,-1},{-2,1},{-1,2}}, false);
-            Collection<ChessMove> knightMoves = knightMovesCalc.pieceMoves(board, myPosition);
-            return knightMoves;
-
-        // Pawn Move Calculation
-        } else if (currPiece.getPieceType() == PieceType.PAWN){
-            PieceMovesCalculator pawnMovesCalc = new PawnMovesCalculator();
-            Collection<ChessMove> pawnMoves = pawnMovesCalc.pieceMoves(board, myPosition);
-            return pawnMoves;
-
-        // Queen Move Calculation
-        } else if (currPiece.getPieceType() == PieceType.QUEEN){
-            PieceMovesCalculator queenMovesCalc = new QueenMovesCalculator(new int[][]{{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1},{0,1}}, true);
-            Collection<ChessMove> queenMoves = queenMovesCalc.pieceMoves(board, myPosition);
-            return queenMoves;
-
-        // Rook Move Calculation
-        } else if (currPiece.getPieceType() == PieceType.ROOK){
-            PieceMovesCalculator rookMovesCalc = new RookMovesCalculator(new int[][]{{0,1},{1,0},{0,-1},{-1,0}}, true);
-            Collection<ChessMove> rookMoves = rookMovesCalc.pieceMoves(board, myPosition);
-            return rookMoves;
-
-        } else {
-            return List.of();
-        }
+        return movesCalculator.pieceMoves(board, myPosition);
     }
 
     @Override

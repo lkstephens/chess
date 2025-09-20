@@ -5,9 +5,9 @@ import java.util.Collection;
 
 public abstract class BaseMovesCalculator implements PieceMovesCalculator{
 
-    private Collection<ChessMove> moves = new ArrayList<>();
-    private int[][] directions;
-    private boolean distIteration = false;
+    private final Collection<ChessMove> moves = new ArrayList<>();
+    private final int[][] directions;
+    private final boolean distIteration;
 
     public BaseMovesCalculator(int[][] directions, boolean distIteration) {
         this.directions = directions;
