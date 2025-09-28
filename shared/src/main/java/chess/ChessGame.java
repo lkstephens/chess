@@ -58,8 +58,8 @@ public class ChessGame {
             Collection<ChessMove> movesToRemove = new ArrayList<>();
             // Iterate through all moves
             for (ChessMove move : validMoves) {
-                // Temporary board copy
-                ChessBoard tempBoard = getBoard();
+                // Temporary board copy - Does this work?
+                ChessBoard tempBoard = (ChessBoard) board.clone();
                 // Make the move
                 tempBoard.movePiece(move.getStartPosition(), move.getEndPosition());
                 // Does the move leave the king in check? -- Overloaded method to include the temporary chessboard
@@ -91,7 +91,7 @@ public class ChessGame {
         if (piece != null) {
             TeamColor moveTeamColor = piece.getTeamColor();
 
-            // Is the move valid, and is the move for the correct team?
+            // Is the move valid, and is the move for the correct team
             if (availableMoves.contains(move) && moveTeamColor == getTeamTurn()) {
 
                 board.movePiece(move.getStartPosition(), move.getEndPosition());
@@ -175,7 +175,30 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        // already in check
+        // king can't move anywhere without still being in check
+        // other pieces cannot block the check
+        if (isInCheck(teamColor)) {
+            // for each piece, get valid moves
+            for (int row = 1; row <= 8; row++) {
+                for (int col = 1; col <= 8; col++) {
+                    ChessPosition tempPosition = new ChessPosition(row, col);
+                    ChessPiece tempPiece = board.getPiece(tempPosition);
+                    if (tempPiece != null && tempPiece.getTeamColor() == teamColor) {
+                        Collection<ChessMove> tempPieceValidMoves = validMoves(tempPosition);
+                        System.out.println(tempPiece.getPieceType());
+                        System.out.println(tempPosition);
+                        System.out.println(tempPieceValidMoves.toString());
+                        // If there is a valid move, then it's not checkmate
+                        if (!tempPieceValidMoves.isEmpty()) {
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     /**
