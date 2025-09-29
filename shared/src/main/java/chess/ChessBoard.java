@@ -151,9 +151,31 @@ public class ChessBoard implements Cloneable{
 
     @Override
     public String toString() {
-        return "ChessBoard{" +
-                "board=" + Arrays.toString(board) +
-                '}';
+        StringBuilder boardString = new StringBuilder();
+        for (int row = 8; row >= 1; row--) {
+            for (int col = 1; col <= 8; col++) {
+
+                ChessPosition pos = new ChessPosition(row, col);
+                ChessPiece piece = getPiece(pos);
+
+                if (col == 1) {
+                    boardString.append("|");
+                }
+
+                if (piece == null) {
+                    boardString.append(" ");
+                } else {
+                    boardString.append(getPiece(pos).toString());
+                }
+
+                boardString.append("|");
+
+                if (col == 8) {
+                    boardString.append("\n");
+                }
+            }
+        }
+        return boardString.toString();
     }
 
     @Override
