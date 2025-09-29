@@ -87,20 +87,14 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
 
         Collection<ChessMove> availableMoves = validMoves(move.getStartPosition());
-        //System.out.println(availableMoves);
+
         ChessPiece piece = board.getPiece(move.getStartPosition());
-        // Board is placing a King at [2,3]?
-        System.out.println(board);
-        System.out.println(move.getStartPosition());
-        System.out.printf("Piece: %s", piece);
 
         if (piece != null) {
             TeamColor moveTeamColor = piece.getTeamColor();
 
             // Is the move valid, and is the move for the correct team
             if (availableMoves.contains(move) && moveTeamColor == getTeamTurn()) {
-
-                System.out.println("Move is valid and is for the correct team");
 
                 board.movePiece(move.getStartPosition(), move.getEndPosition());
 
@@ -114,6 +108,8 @@ public class ChessGame {
             } else {
                 throw new InvalidMoveException();
             }
+        } else {
+            throw new InvalidMoveException();
         }
     }
 

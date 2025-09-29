@@ -196,7 +196,7 @@ public class ChessBoard implements Cloneable{
     @Override
     protected Object clone() {
         try {
-            ChessBoard clonedBoard = (ChessBoard) super.clone();
+            ChessBoard clonedBoard = new ChessBoard();
             for (int row = 1; row <= 8; row++) {
                 for (int col = 1; col <= 8; col++) {
                     ChessPosition pos = new ChessPosition(row, col);
