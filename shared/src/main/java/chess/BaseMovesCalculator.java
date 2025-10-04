@@ -3,15 +3,13 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public abstract class BaseMovesCalculator implements PieceMovesCalculator{
+public class BaseMovesCalculator implements PieceMovesCalculator{
 
     private final Collection<ChessMove> moves = new ArrayList<>();
-    private final int[][] directions;
-    private final boolean distIteration;
+    private final ChessPiece.PieceType pieceType;
 
-    public BaseMovesCalculator(int[][] directions, boolean distIteration) {
-        this.directions = directions;
-        this.distIteration = distIteration;
+    public BaseMovesCalculator(ChessPiece.PieceType pieceType) {
+        this.pieceType = pieceType;
     }
 
     private void addMove(ChessMove move) {
@@ -21,11 +19,23 @@ public abstract class BaseMovesCalculator implements PieceMovesCalculator{
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
 
+        int[][] directions = switch (pieceType) {
+            case BISHOP -> new int[][]{{1, 1}, {1, -1}, {-1, -1}, {-1, 1}};
+            case KING, QUEEN -> new int[][]{{1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}, {0, 1}};
+            case KNIGHT -> new int[][]{{1, 2}, {2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2, -1}, {-2, 1}, {-1, 2}};
+            case ROOK -> new int[][]{{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+            case PAWN -> null;
+        };
+
+        boolean distIteration;
+        distIteration = pieceType != ChessPiece.PieceType.KING && pieceType != ChessPiece.PieceType.KNIGHT;
+
         int startRow = myPosition.getRow();
         int startCol = myPosition.getColumn();
         ChessPiece myPiece = board.getPiece(myPosition);
         ChessGame.TeamColor myTeamColor = myPiece.getTeamColor();
 
+        assert directions != null;
         for (int[] direction : directions) {
             if (direction.length != 2) {
                 System.out.println("Direction array needs 2 values");

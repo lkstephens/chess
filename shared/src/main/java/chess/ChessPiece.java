@@ -57,12 +57,12 @@ public class ChessPiece implements Cloneable{
         ChessPiece currPiece = board.getPiece(myPosition);
 
         PieceMovesCalculator movesCalculator = switch (currPiece.getPieceType()) {
-            case PieceType.BISHOP -> new BishopMovesCalculator(new int[][]{{1, 1}, {1, -1}, {-1, -1}, {-1, 1}}, true);
-            case PieceType.KING -> new KingMovesCalculator(new int[][]{{1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}, {0, 1}}, false);
-            case PieceType.KNIGHT -> new KnightMovesCalculator(new int[][]{{1, 2}, {2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2, -1}, {-2, 1}, {-1, 2}}, false);
-            case PieceType.PAWN -> new PawnMovesCalculator();
-            case PieceType.QUEEN -> new QueenMovesCalculator(new int[][]{{1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}, {0, 1}}, true);
-            case PieceType.ROOK -> new RookMovesCalculator(new int[][]{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}, true);
+            case BISHOP -> new BaseMovesCalculator(PieceType.BISHOP);
+            case KING -> new BaseMovesCalculator(PieceType.KING);
+            case KNIGHT -> new BaseMovesCalculator(PieceType.KNIGHT);
+            case PAWN -> new PawnMovesCalculator();
+            case QUEEN -> new BaseMovesCalculator(PieceType.QUEEN);
+            case ROOK -> new BaseMovesCalculator(PieceType.ROOK);
         };
 
         return movesCalculator.pieceMoves(board, myPosition);
