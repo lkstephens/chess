@@ -1,15 +1,20 @@
 package dataaccess;
 
-import datamodel.RegisterRequest;
+import model.UserData;
+
+import java.util.HashMap;
 
 public class MemoryUserDAO implements UserDAO{
-    @Override
-    public void createUser(RegisterRequest registerRequest) {
 
+    private HashMap<String, UserData> userDataHashMap = new HashMap<>();
+
+    @Override
+    public void createUser(UserData userData) {
+        userDataHashMap.put(userData.username(), userData);
     }
 
     @Override
-    public void getUser(String username) {
-
+    public UserData getUser(String username) {
+        return userDataHashMap.get(username);
     }
 }

@@ -1,15 +1,16 @@
 package dataaccess;
 
 import datamodel.RegisterRequest;
+import model.UserData;
 
 public class SQLUserDAO implements UserDAO{
     @Override
-    public void createUser(RegisterRequest registerRequest) {
+    public void createUser(UserData userData) {
 
     }
 
     @Override
-    public void getUser(String username) {
-
+    public UserData getUser(String username) {
+        return new UserData("1","2","3");       // DELETE ME
     }
 }

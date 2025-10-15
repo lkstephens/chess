@@ -1,8 +1,8 @@
 package dataaccess;
 
-import datamodel.RegisterRequest;
+import model.UserData;
 
 public interface UserDAO {
-    void createUser(RegisterRequest registerRequest);
-    void getUser(String username);
+    void createUser(UserData userData);
+    UserData getUser(String username);
 }
