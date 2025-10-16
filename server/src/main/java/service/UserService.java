@@ -1,18 +1,19 @@
 package service;
 
-import dataaccess.DataAccessException;
-import dataaccess.MemoryUserDAO;
-import dataaccess.UserDAO;
-import datamodel.RegisterRequest;
-import datamodel.RegisterResult;
-import model.UserData;
+import dataaccess.*;
+import datamodel.*;
+import model.*;
+
+import java.util.UUID;
 
 public class UserService {
 
-    private UserDAO userDAO;
+    private final UserDAO userDAO;
+    private final AuthDAO authDAO;
 
     public UserService() {
         userDAO = new MemoryUserDAO();
+        authDAO = new MemoryAuthDAO();
     }
 
     public RegisterResult register(RegisterRequest registerRequest) throws BadRequestException, AlreadyTakenException, DataAccessException {
@@ -38,9 +39,12 @@ public class UserService {
                 userDAO.createUser(userData);
             }
 
-            // Create auth
+            // Create Auth Data
+            String authToken = generateToken();
+            AuthData authData = new AuthData(authToken, username);
+            authDAO.createAuth(authData);
 
-            return new RegisterResult(username, "myAuthToken");
+            return new RegisterResult(username, authToken);
 
         } catch (DataAccessException e) {
             throw new DataAccessException("Error: database access error (HashMap)", e);
@@ -50,6 +54,10 @@ public class UserService {
     }
     // public LoginResult login(LoginRequest loginRequest) {}
     // public void logout(LogoutRequest logoutRequest) {}
+
+    public static String generateToken() {
+        return UUID.randomUUID().toString();
+    }
 
     public static class AlreadyTakenException extends Exception {
         public AlreadyTakenException(String message) {

@@ -14,7 +14,7 @@ import java.util.Map;
 public class Server {
 
     private final Javalin server;
-    private UserService userService;
+    private final UserService userService;
 
     public Server() {
         userService = new UserService();

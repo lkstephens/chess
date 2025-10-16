@@ -1,7 +1,6 @@
 package service;
 
 import dataaccess.DataAccessException;
-import dataaccess.MemoryUserDAO;
 import datamodel.RegisterRequest;
 import datamodel.RegisterResult;
 import model.UserData;
@@ -46,17 +45,11 @@ public class UserServiceTest {
         var registerRequest2 = new RegisterRequest("test2", "", "testemail@gmail.com");
         var registerRequest3 = new RegisterRequest("test3", "test", "");
 
-        assertThrows(BadRequestException.class, () -> {
-            service.register(registerRequest1);
-        });
+        assertThrows(BadRequestException.class, () -> service.register(registerRequest1));
 
-        assertThrows(BadRequestException.class, () -> {
-            service.register(registerRequest2);
-        });
+        assertThrows(BadRequestException.class, () -> service.register(registerRequest2));
 
-        assertThrows(BadRequestException.class, () -> {
-            service.register(registerRequest3);
-        });
+        assertThrows(BadRequestException.class, () -> service.register(registerRequest3));
 
     }
 
