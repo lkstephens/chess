@@ -4,6 +4,11 @@ import model.AuthData;
 
 public class SQLAuthDAO implements AuthDAO{
     @Override
+    public void clear() {
+
+    }
+
+    @Override
     public void createAuth(AuthData authData) {
 
     }

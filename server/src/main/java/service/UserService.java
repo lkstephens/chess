@@ -16,6 +16,11 @@ public class UserService {
         authDAO = new MemoryAuthDAO();
     }
 
+    public void clear() {
+        userDAO.clear();
+        authDAO.clear();
+    }
+
     public RegisterResult register(RegisterRequest registerRequest) throws BadRequestException, AlreadyTakenException, DataAccessException {
 
         String username = registerRequest.username();
@@ -92,12 +97,6 @@ public class UserService {
 
     public static class AlreadyTakenException extends Exception {
         public AlreadyTakenException(String message) {
-            super(message);
-        }
-    }
-
-    public static class NoUserFoundException extends Exception {
-        public NoUserFoundException(String message) {
             super(message);
         }
     }

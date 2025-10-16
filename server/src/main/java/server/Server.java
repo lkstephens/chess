@@ -6,6 +6,7 @@ import datamodel.*;
 import io.javalin.*;
 import io.javalin.http.Context;
 import service.BadRequestException;
+import service.GameService;
 import service.UnauthorizedException;
 import service.UserService;
 
@@ -15,17 +16,26 @@ public class Server {
 
     private final Javalin server;
     private final UserService userService;
+    private final GameService gameService;
 
     public Server() {
         userService = new UserService();
+        gameService = new GameService();
         server = Javalin.create(config -> config.staticFiles.add("web"));
 
-        server.delete("db", ctx -> ctx.result("{}"));
+        server.delete("db", this::clear);
         server.post("user", this::register);
         server.post("session", this::login);
 
         // Register your endpoints and exception handlers here.
 
+    }
+
+    private void clear(Context ctx) {
+        userService.clear();
+        gameService.clear();
+        ctx.result("{}");
+        ctx.status(200);
     }
 
     private void register(Context ctx) {

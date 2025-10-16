@@ -6,8 +6,12 @@ import java.util.HashMap;
 
 public class MemoryAuthDAO implements AuthDAO{
 
-    // Storage in RAM
     private final HashMap<String, AuthData> authDataHashMap = new HashMap<>();
+
+    @Override
+    public void clear() {
+        authDataHashMap.clear();
+    }
 
     @Override
     public void createAuth(AuthData authData) {
