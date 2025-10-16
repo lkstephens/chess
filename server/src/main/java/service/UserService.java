@@ -49,10 +49,41 @@ public class UserService {
         } catch (DataAccessException e) {
             throw new DataAccessException("Error: database access error (HashMap)", e);
         }
+    }
 
+    public LoginResult login(LoginRequest loginRequest) throws BadRequestException, NoUserFoundException, UnauthorizedException, DataAccessException {
+        String username = loginRequest.username();
+        String password = loginRequest.password();
+
+        // Check if there is a Bad Request (Checks for null, empty)
+        if (username == null || password == null ||
+            username.isEmpty() || password.isEmpty()) {
+            throw new BadRequestException("Error: bad request");
+        }
+
+        try {
+            // See if the user is in the database
+            UserData userData = userDAO.getUser(username);
+            if (userData == null) {
+                throw new NoUserFoundException("Error: no user found");
+            } else {
+                // Check for correct password
+                if (!password.equals(userData.password())) {
+                    throw new UnauthorizedException("Error: unauthorized");
+                } else {
+                    // Create Auth Data
+                    String authToken = generateToken();
+                    AuthData authData = new AuthData(authToken, username);
+                    authDAO.createAuth(authData);
+                    return new LoginResult(username, authToken);
+                }
+            }
+
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Error: database access error (HashMap)", e);
+        }
 
     }
-    // public LoginResult login(LoginRequest loginRequest) {}
     // public void logout(LogoutRequest logoutRequest) {}
 
     public static String generateToken() {
@@ -61,6 +92,12 @@ public class UserService {
 
     public static class AlreadyTakenException extends Exception {
         public AlreadyTakenException(String message) {
+            super(message);
+        }
+    }
+
+    public static class NoUserFoundException extends Exception {
+        public NoUserFoundException(String message) {
             super(message);
         }
     }

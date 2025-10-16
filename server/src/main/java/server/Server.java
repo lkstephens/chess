@@ -2,11 +2,11 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
+import datamodel.*;
 import io.javalin.*;
 import io.javalin.http.Context;
-import datamodel.RegisterRequest;
-import datamodel.RegisterResult;
 import service.BadRequestException;
+import service.UnauthorizedException;
 import service.UserService;
 
 import java.util.Map;
@@ -22,6 +22,7 @@ public class Server {
 
         server.delete("db", ctx -> ctx.result("{}"));
         server.post("user", this::register);
+        server.post("session", this::login);
 
         // Register your endpoints and exception handlers here.
 
@@ -30,11 +31,13 @@ public class Server {
     private void register(Context ctx) {
         var serializer = new Gson();
         try {
+
             var request = serializer.fromJson(ctx.body(), RegisterRequest.class);
             RegisterResult result = userService.register(request);
             ctx.result(serializer.toJson(result));
             ctx.status(200);
-        } catch(BadRequestException e) {
+
+        } catch (BadRequestException e) {
             ctx.status(400);
             ctx.result(serializer.toJson(Map.of("message", e.getMessage())));
         } catch (UserService.AlreadyTakenException e) {
@@ -43,6 +46,27 @@ public class Server {
         } catch (DataAccessException e) {
             ctx.status(500);
             ctx.result(serializer.toJson(Map.of("message",e.getMessage())));
+        }
+    }
+
+    private void login(Context ctx) {
+        var serializer = new Gson();
+        try {
+        var request = serializer.fromJson(ctx.body(), LoginRequest.class);
+        LoginResult result = userService.login(request);
+        ctx.result(serializer.toJson(result));
+        } catch (BadRequestException e) {
+            ctx.status(400);
+            ctx.result(serializer.toJson(Map.of("message", e.getMessage())));
+        } catch (UnauthorizedException e) {
+            ctx.status(401);
+            ctx.result(serializer.toJson(Map.of("message", e.getMessage())));
+        } catch (UserService.NoUserFoundException e) {
+            ctx.status(404);
+            ctx.result(serializer.toJson(Map.of("message", e.getMessage())));
+        } catch (DataAccessException e) {
+            ctx.status(500);
+            ctx.result(serializer.toJson(Map.of("message", e.getMessage())));
         }
     }
 
