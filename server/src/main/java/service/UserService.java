@@ -51,7 +51,7 @@ public class UserService {
         }
     }
 
-    public LoginResult login(LoginRequest loginRequest) throws BadRequestException, NoUserFoundException, UnauthorizedException, DataAccessException {
+    public LoginResult login(LoginRequest loginRequest) throws BadRequestException, UnauthorizedException, DataAccessException {
         String username = loginRequest.username();
         String password = loginRequest.password();
 
@@ -65,7 +65,7 @@ public class UserService {
             // See if the user is in the database
             UserData userData = userDAO.getUser(username);
             if (userData == null) {
-                throw new NoUserFoundException("Error: no user found");
+                throw new UnauthorizedException("Error: no user found");
             } else {
                 // Check for correct password
                 if (!password.equals(userData.password())) {

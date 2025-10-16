@@ -55,14 +55,13 @@ public class Server {
         var request = serializer.fromJson(ctx.body(), LoginRequest.class);
         LoginResult result = userService.login(request);
         ctx.result(serializer.toJson(result));
+        ctx.status(200);
+
         } catch (BadRequestException e) {
             ctx.status(400);
             ctx.result(serializer.toJson(Map.of("message", e.getMessage())));
         } catch (UnauthorizedException e) {
             ctx.status(401);
-            ctx.result(serializer.toJson(Map.of("message", e.getMessage())));
-        } catch (UserService.NoUserFoundException e) {
-            ctx.status(404);
             ctx.result(serializer.toJson(Map.of("message", e.getMessage())));
         } catch (DataAccessException e) {
             ctx.status(500);
