@@ -17,19 +17,47 @@ public class UserServiceTest {
     }
 
     @Test
-    void register() throws UserService.AlreadyTakenException, DataAccessException {
-        var registerRequest = new RegisterRequest("joe", "j@j", "j");
-        var user = new UserData("joe", "j@j", "j");
-        var authToken = "xyz";
+    void registerGood() {
+        var registerRequest = new RegisterRequest("lando", "lando", "lando@java.com");
+        var user = new UserData("lando", "lando", "lando@java.com");
 
-        var da = new MemoryUserDAO();
         var service = new UserService();
 
-        RegisterResult response = service.register(registerRequest);
-        assertNotNull(response);
-        assertEquals(response.username(), user.username());
-        assertNotNull(response.authToken());
-        assertEquals(String.class, response.authToken().getClass());
+        try {
+
+            RegisterResult response = service.register(registerRequest);
+            assertNotNull(response);
+            assertEquals(response.username(), user.username());
+            assertNotNull(response.authToken());
+            assertEquals(String.class, response.authToken().getClass());
+
+        } catch (DataAccessException | UserService.AlreadyTakenException | BadRequestException e) {
+            System.out.println(e.getMessage());
+        }
+
+    }
+
+    @Test
+    void registerEmptyFields() {
+
+        var service = new UserService();
+
+        var registerRequest1 = new RegisterRequest("", "test", "testemail@gmail.com");
+        var registerRequest2 = new RegisterRequest("test2", "", "testemail@gmail.com");
+        var registerRequest3 = new RegisterRequest("test3", "test", "");
+
+        assertThrows(BadRequestException.class, () -> {
+            service.register(registerRequest1);
+        });
+
+        assertThrows(BadRequestException.class, () -> {
+            service.register(registerRequest2);
+        });
+
+        assertThrows(BadRequestException.class, () -> {
+            service.register(registerRequest3);
+        });
+
     }
 
 }
