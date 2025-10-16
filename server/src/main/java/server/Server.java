@@ -1,12 +1,15 @@
 package server;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import io.javalin.*;
 import io.javalin.http.Context;
 import datamodel.RegisterRequest;
 import datamodel.RegisterResult;
-import org.eclipse.jetty.server.Authentication;
+import service.BadRequestException;
 import service.UserService;
+
+import java.util.Map;
 
 public class Server {
 
@@ -26,9 +29,21 @@ public class Server {
 
     private void register(Context ctx) {
         var serializer = new Gson();
-        var request = serializer.fromJson(ctx.body(), RegisterRequest.class);
-        RegisterResult result = userService.register(request);
-        ctx.result(serializer.toJson(result));
+        try {
+            var request = serializer.fromJson(ctx.body(), RegisterRequest.class);
+            RegisterResult result = userService.register(request);
+            ctx.result(serializer.toJson(result));
+            ctx.status(200);
+        } catch(BadRequestException e) {
+            ctx.status(400);
+            ctx.result(serializer.toJson(Map.of("message", e.getMessage())));
+        } catch (UserService.AlreadyTakenException e) {
+            ctx.status(403);
+            ctx.result(serializer.toJson(Map.of("message", e.getMessage())));
+        } catch (DataAccessException e) {
+            ctx.status(500);
+            ctx.result(serializer.toJson(Map.of("message",e.getMessage())));
+        }
     }
 
     public int run(int desiredPort) {

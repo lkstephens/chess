@@ -14,7 +14,11 @@ public class MemoryUserDAO implements UserDAO{
     }
 
     @Override
-    public UserData getUser(String username) {
-        return userDataHashMap.get(username);
+    public UserData getUser(String username) throws DataAccessException{
+        try {
+            return userDataHashMap.get(username);
+        } catch (Exception e) {
+            throw new DataAccessException("Error: database access error (HashMap)");
+        }
     }
 }

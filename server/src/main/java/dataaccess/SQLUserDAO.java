@@ -10,7 +10,7 @@ public class SQLUserDAO implements UserDAO{
     }
 
     @Override
-    public UserData getUser(String username) {
+    public UserData getUser(String username) throws DataAccessException{
         return new UserData("1","2","3");       // DELETE ME
     }
 }
