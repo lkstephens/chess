@@ -19,12 +19,16 @@ public class MemoryAuthDAO implements AuthDAO{
     }
 
     @Override
-    public AuthData getAuth(String authToken) {
-        return authDataHashMap.get(authToken);
+    public AuthData getAuth(String authToken) throws DataAccessException {
+        try {
+            return authDataHashMap.get(authToken);
+        } catch (Exception e) {
+            throw new DataAccessException("Error: database access error (HashMap)");
+        }
     }
 
     @Override
     public void deleteAuth(AuthData authData) {
-
+        authDataHashMap.remove(authData.authToken());
     }
 }

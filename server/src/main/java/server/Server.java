@@ -26,6 +26,7 @@ public class Server {
         server.delete("db", this::clear);
         server.post("user", this::register);
         server.post("session", this::login);
+        server.delete("session", this::logout);
 
         // Register your endpoints and exception handlers here.
 
@@ -70,6 +71,22 @@ public class Server {
         } catch (BadRequestException e) {
             ctx.status(400);
             ctx.result(serializer.toJson(Map.of("message", e.getMessage())));
+        } catch (UnauthorizedException e) {
+            ctx.status(401);
+            ctx.result(serializer.toJson(Map.of("message", e.getMessage())));
+        } catch (DataAccessException e) {
+            ctx.status(500);
+            ctx.result(serializer.toJson(Map.of("message", e.getMessage())));
+        }
+    }
+
+    private void logout(Context ctx) {
+        var serializer = new Gson();
+        String authToken = ctx.header("authorization");
+        try {
+            userService.logout(authToken);
+            ctx.result("{}");
+            ctx.status(200);
         } catch (UnauthorizedException e) {
             ctx.status(401);
             ctx.result(serializer.toJson(Map.of("message", e.getMessage())));

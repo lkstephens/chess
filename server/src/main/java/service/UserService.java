@@ -89,7 +89,22 @@ public class UserService {
         }
 
     }
-    // public void logout(LogoutRequest logoutRequest) {}
+
+    public void logout(String authToken) throws UnauthorizedException, DataAccessException {
+
+        try {
+
+            AuthData authData = authDAO.getAuth(authToken);
+            if (authData == null) {
+                throw new UnauthorizedException("Error: unauthorized");
+            } else {
+                authDAO.deleteAuth(authData);
+            }
+
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Error: database access error (HashMap)", e);
+        }
+    }
 
     public static String generateToken() {
         return UUID.randomUUID().toString();
