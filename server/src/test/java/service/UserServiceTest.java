@@ -89,4 +89,39 @@ public class UserServiceTest {
 
     }
 
+    @Test
+    void logoutGood() throws BadRequestException, UserService.AlreadyTakenException, DataAccessException, UnauthorizedException {
+
+        var service = new UserService();
+
+        // Register
+        var registerRequest = new RegisterRequest("user", "pass", "user@example.com");
+
+        // Logout
+        var registerResult = service.register(registerRequest);
+        assertEquals(String.class, registerResult.authToken().getClass());
+        service.logout(registerResult.authToken());
+
+        // Login
+        var loginRequest = new LoginRequest("user", "pass");
+        var loginResult = service.login(loginRequest);
+
+        // Logout
+        service.logout(loginResult.authToken());
+
+    }
+
+    @Test
+    void logoutBadAuth() throws BadRequestException, UserService.AlreadyTakenException, DataAccessException {
+
+        var service = new UserService();
+
+        var registerRequest = new RegisterRequest("user", "pass", "user@example.com");
+        var registerResult = service.register(registerRequest);
+        String badAuthToken = "bad4321auth1234";
+
+        assertNotEquals(badAuthToken, registerResult.authToken());
+        assertThrows(UnauthorizedException.class, () -> service.logout(badAuthToken));
+    }
+
 }
