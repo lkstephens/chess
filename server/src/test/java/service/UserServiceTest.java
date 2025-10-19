@@ -120,6 +120,52 @@ public class UserServiceTest {
         assertThrows(UnauthorizedException.class, () -> service.logout(badAuthToken));
     }
 
+    @Test
+    void listGamesGood() throws BadRequestException, AlreadyTakenException, DataAccessException, UnauthorizedException {
+
+        var userService = new UserService();
+        var registerRequest = new RegisterRequest("user", "pass", "user@example.com");
+        var registerResult = userService.register(registerRequest);
+
+        var gameService = new GameService(userService.getAuthDAO());
+
+        // Empty list of games before adding new games
+        assertTrue(gameService.listGames(registerResult.authToken()).games().isEmpty());
+
+        var createGameRequestA = new CreateGameRequest("Game A");
+        var createGameRequestB = new CreateGameRequest("Game B");
+        var createGameRequestC = new CreateGameRequest("Game C");
+        var createGameResultA = gameService.createGame(registerResult.authToken(), createGameRequestA);
+        var createGameResultB = gameService.createGame(registerResult.authToken(), createGameRequestB);
+        var createGameResultC = gameService.createGame(registerResult.authToken(), createGameRequestC);
+
+        var listGamesResult = gameService.listGames(registerResult.authToken());
+
+        assertEquals(3, listGamesResult.games().size());
+        for (GameDataTruncated gameData : listGamesResult.games()) {
+            assertNull(gameData.whiteUsername());
+            assertNull(gameData.blackUsername());
+        }
+
+        assertTrue(createGameResultA.gameID() > 0 &&
+                            createGameResultA.gameID() != createGameResultB.gameID() &&
+                            createGameResultA.gameID() != createGameResultC.gameID());
+
+    }
+
+    @Test
+    void listGamesBadAuth() throws BadRequestException, AlreadyTakenException, DataAccessException {
+
+        var userService = new UserService();
+        var registerRequest = new RegisterRequest("user", "pass", "user@example.com");
+        var registerResult = userService.register(registerRequest);
+        String badAuthToken = "bad4321auth1234";
+
+        var gameService = new GameService(userService.getAuthDAO());
+
+        assertNotEquals(badAuthToken, registerResult.authToken());
+        assertThrows(UnauthorizedException.class, () -> gameService.listGames(badAuthToken));
+    }
 
 
     @Test
