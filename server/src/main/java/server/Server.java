@@ -28,7 +28,7 @@ public class Server {
         server.post("user", this::register);
         server.post("session", this::login);
         server.delete("session", this::logout);
-
+        server.get("game", this::listGames);
         server.post("game", this::createGame);
 
         // Register your endpoints and exception handlers here.
@@ -91,6 +91,24 @@ public class Server {
 
             userService.logout(authToken);
             ctx.result("{}");
+            ctx.status(200);
+
+        } catch (UnauthorizedException e) {
+            ctx.status(401);
+            ctx.result(serializer.toJson(Map.of("message", e.getMessage())));
+        } catch (DataAccessException e) {
+            ctx.status(500);
+            ctx.result(serializer.toJson(Map.of("message", e.getMessage())));
+        }
+    }
+
+    private void listGames(Context ctx) {
+        var serializer = new Gson();
+        String authToken = ctx.header("authorization");
+        try {
+
+            ListGamesResult result = gameService.listGames(authToken);
+            ctx.result(serializer.toJson(result));
             ctx.status(200);
 
         } catch (UnauthorizedException e) {

@@ -1,8 +1,10 @@
 package dataaccess;
 
 import chess.ChessGame;
+import datamodel.GameDataTruncated;
 import model.GameData;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -38,7 +40,13 @@ public class MemoryGameDAO implements GameDAO{
     }
 
     @Override
-    public List<GameData> listGames() {
-        return List.of();
+    public List<GameDataTruncated> listGames() {
+        ArrayList<GameData> raw = new ArrayList<>(gameDataTreeMap.values());
+        ArrayList<GameDataTruncated> filtered = new ArrayList<>();
+        for (GameData data : raw) {
+            filtered.add(new GameDataTruncated(data.gameID(), data.whiteUsername(),
+                                               data.blackUsername(), data.gameName()));
+        }
+        return filtered;
     }
 }

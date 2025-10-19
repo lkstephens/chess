@@ -6,6 +6,7 @@ import dataaccess.GameDAO;
 import dataaccess.MemoryGameDAO;
 import datamodel.CreateGameRequest;
 import datamodel.CreateGameResult;
+import datamodel.ListGamesResult;
 import model.AuthData;
 
 public class GameService {
@@ -20,6 +21,20 @@ public class GameService {
 
     public void clear() {
         gameDAO.clear();
+    }
+
+    public ListGamesResult listGames(String authToken) throws UnauthorizedException, DataAccessException{
+
+        try {
+            AuthData authData = authDAO.getAuth(authToken);
+            if (authData == null) {
+                throw new UnauthorizedException("Error: unauthorized");
+            } else {
+                return new ListGamesResult(gameDAO.listGames());
+            }
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Error: database access error (TreeMap)", e);
+        }
     }
 
     public CreateGameResult createGame(String authToken, CreateGameRequest createGameRequest) throws BadRequestException, UnauthorizedException, DataAccessException {

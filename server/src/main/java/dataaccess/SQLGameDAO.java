@@ -1,6 +1,7 @@
 package dataaccess;
 
 import model.GameData;
+import datamodel.GameDataTruncated;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class SQLGameDAO implements GameDAO{
     }
 
     @Override
-    public List<GameData> listGames() {
+    public List<GameDataTruncated> listGames() {
         return List.of();
     }
 }

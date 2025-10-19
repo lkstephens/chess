@@ -1,5 +1,6 @@
 package dataaccess;
 
+import datamodel.GameDataTruncated;
 import model.GameData;
 
 import java.util.List;
@@ -9,6 +10,6 @@ public interface GameDAO {
     int createGame(String gameName);
     GameData getGame(int gameID);
     void updateGame(GameData gameData);
-    List<GameData> listGames();
+    List<GameDataTruncated> listGames();
 
 }
