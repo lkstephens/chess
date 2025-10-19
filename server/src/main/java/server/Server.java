@@ -39,7 +39,6 @@ public class Server {
             userService.clear();
             gameService.clear();
             ctx.result("{}");
-            ctx.status(200);
 
         } catch (DataAccessException e) {
             ctx.status(500);
@@ -54,7 +53,6 @@ public class Server {
 
             RegisterResult result = userService.register(request);
             ctx.result(serializer.toJson(result));
-            ctx.status(200);
 
         } catch (BadRequestException e) {
             ctx.status(400);
@@ -75,7 +73,6 @@ public class Server {
 
             LoginResult result = userService.login(request);
             ctx.result(serializer.toJson(result));
-            ctx.status(200);
 
         } catch (BadRequestException e) {
             ctx.status(400);
@@ -96,7 +93,6 @@ public class Server {
 
             userService.logout(authToken);
             ctx.result("{}");
-            ctx.status(200);
 
         } catch (UnauthorizedException e) {
             ctx.status(401);
@@ -114,7 +110,6 @@ public class Server {
 
             ListGamesResult result = gameService.listGames(authToken);
             ctx.result(serializer.toJson(result));
-            ctx.status(200);
 
         } catch (UnauthorizedException e) {
             ctx.status(401);
@@ -133,7 +128,6 @@ public class Server {
 
             CreateGameResult result = gameService.createGame(authToken, request);
             ctx.result(serializer.toJson(result));
-            ctx.status(200);
 
         } catch (BadRequestException e) {
             ctx.status(400);
@@ -155,7 +149,6 @@ public class Server {
 
             gameService.joinGame(authToken, request);
             ctx.result("{}");
-            ctx.status(200);
 
         } catch (BadRequestException e) {
             ctx.status(400);
