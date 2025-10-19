@@ -25,18 +25,30 @@ public class MemoryGameDAO implements GameDAO{
         } else {
             gameID = gameDataTreeMap.lastKey() + 1;
         }
-        gameDataTreeMap.put(gameID, new GameData(gameID, "", "", gameName, new ChessGame()));
+        gameDataTreeMap.put(gameID, new GameData(gameID, null, null, gameName, new ChessGame()));
         return gameID;
     }
 
     @Override
     public GameData getGame(int gameID) {
-        return null;
+        return gameDataTreeMap.get(gameID);
     }
 
     @Override
-    public void updateGame(GameData gameData) {
-
+    public void updateGame(int gameID, String username, String playerColor) {
+        // Write over previous game data with a new record
+        GameData oldGameData = gameDataTreeMap.get(gameID);
+        GameData newGameData;
+        if (playerColor.equals("WHITE")) {
+            newGameData = new GameData(
+                gameID, username, oldGameData.blackUsername(), oldGameData.gameName(), oldGameData.game()
+            );
+        } else {
+            newGameData = new GameData(
+                gameID, oldGameData.whiteUsername(), username, oldGameData.gameName(), oldGameData.game()
+            );
+        }
+        gameDataTreeMap.put(gameID, newGameData);
     }
 
     @Override

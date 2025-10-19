@@ -6,6 +6,7 @@ import dataaccess.GameDAO;
 import dataaccess.MemoryGameDAO;
 import datamodel.CreateGameRequest;
 import datamodel.CreateGameResult;
+import datamodel.JoinGameRequest;
 import datamodel.ListGamesResult;
 import model.AuthData;
 
@@ -58,6 +59,36 @@ public class GameService {
 
             }
 
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Error: database access error (TreeMap)", e);
+        }
+    }
+
+    public void joinGame(String authToken, JoinGameRequest joinGameRequest) throws BadRequestException, UnauthorizedException, DataAccessException {
+
+        String playerColor = joinGameRequest.playerColor();
+        int gameID = joinGameRequest.gameID();
+
+        if (playerColor == null || playerColor.isEmpty() ||
+            !playerColor.equals("WHITE") && !playerColor.equals("BLACK") ||
+            gameID < 1) {
+            throw new BadRequestException("Error: bad request");
+        }
+
+        try {
+
+            if (gameDAO.getGame(gameID) == null) {
+                throw new BadRequestException("Error: game does not exist");
+            }
+
+            AuthData authData = authDAO.getAuth(authToken);
+            if (authData == null) {
+                throw new UnauthorizedException("Error: unauthorized");
+            } else {
+                String username = authData.username();
+                gameDAO.updateGame(gameID, username, playerColor);
+
+            }
         } catch (DataAccessException e) {
             throw new DataAccessException("Error: database access error (TreeMap)", e);
         }

@@ -30,6 +30,7 @@ public class Server {
         server.delete("session", this::logout);
         server.get("game", this::listGames);
         server.post("game", this::createGame);
+        server.put("game", this::joinGame);
 
         // Register your endpoints and exception handlers here.
 
@@ -128,6 +129,28 @@ public class Server {
 
             CreateGameResult result = gameService.createGame(authToken, request);
             ctx.result(serializer.toJson(result));
+            ctx.status(200);
+
+        } catch (BadRequestException e) {
+            ctx.status(400);
+            ctx.result(serializer.toJson(Map.of("message", e.getMessage())));
+        } catch (UnauthorizedException e) {
+            ctx.status(401);
+            ctx.result(serializer.toJson(Map.of("message", e.getMessage())));
+        } catch (DataAccessException e) {
+            ctx.status(500);
+            ctx.result(serializer.toJson(Map.of("message", e.getMessage())));
+        }
+    }
+
+    private void joinGame(Context ctx) {
+        var serializer = new Gson();
+        String authToken = ctx.header("authorization");
+        var request = serializer.fromJson(ctx.body(), JoinGameRequest.class);
+        try{
+
+            gameService.joinGame(authToken, request);
+            ctx.result("{}");
             ctx.status(200);
 
         } catch (BadRequestException e) {

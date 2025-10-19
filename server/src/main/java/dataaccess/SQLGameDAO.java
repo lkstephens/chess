@@ -22,7 +22,7 @@ public class SQLGameDAO implements GameDAO{
     }
 
     @Override
-    public void updateGame(GameData gameData) {
+    public void updateGame(int gameID, String username, String playerColor) {
 
     }
 

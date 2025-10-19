@@ -9,7 +9,7 @@ public interface GameDAO {
     void clear();
     int createGame(String gameName);
     GameData getGame(int gameID);
-    void updateGame(GameData gameData);
+    void updateGame(int gameID, String username, String playerColor);
     List<GameDataTruncated> listGames();
 
 }
