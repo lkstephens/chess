@@ -200,4 +200,64 @@ public class UserServiceTest {
 
     }
 
+    @Test
+    void joinGameGood() throws BadRequestException, AlreadyTakenException, DataAccessException, UnauthorizedException {
+
+        var userService = new UserService();
+        var registerRequest1 = new RegisterRequest("user", "pass", "user@example.com");
+        var registerResult1 = userService.register(registerRequest1);
+
+        var gameService = new GameService(userService.getAuthDAO());
+        var createGameRequest = new CreateGameRequest("testGame");
+        var createGameResult = gameService.createGame(registerResult1.authToken(), createGameRequest);
+
+        var joinGameRequest1 = new JoinGameRequest("WHITE", createGameResult.gameID());
+
+        gameService.joinGame(registerResult1.authToken(), joinGameRequest1);
+
+        var registerRequest2 = new RegisterRequest("user2", "pass2", "user2@example.com");
+        var registerResult2 = userService.register(registerRequest2);
+        var joinGameRequest2 = new JoinGameRequest("BLACK", createGameResult.gameID());
+
+        gameService.joinGame(registerResult2.authToken(), joinGameRequest2);
+
+        var listGamesResult = gameService.listGames(registerResult2.authToken());
+
+        assertEquals("user", listGamesResult.games().getFirst().whiteUsername());
+        assertEquals("user2", listGamesResult.games().getFirst().blackUsername());
+    }
+
+    @Test
+    void joinGameAlreadyTaken() throws BadRequestException, AlreadyTakenException, DataAccessException, UnauthorizedException {
+        var userService = new UserService();
+        var registerRequest1 = new RegisterRequest("user", "pass", "user@example.com");
+        var registerResult1 = userService.register(registerRequest1);
+
+        var gameService = new GameService(userService.getAuthDAO());
+        var createGameRequest = new CreateGameRequest("testGame");
+        var createGameResult = gameService.createGame(registerResult1.authToken(), createGameRequest);
+
+        var joinGameRequest1 = new JoinGameRequest("WHITE", createGameResult.gameID());
+
+        // Assign player 1 to white
+        gameService.joinGame(registerResult1.authToken(), joinGameRequest1);
+
+        var registerRequest2 = new RegisterRequest("user2", "pass2", "user2@example.com");
+        var registerResult2 = userService.register(registerRequest2);
+        var joinGameRequest2 = new JoinGameRequest("WHITE", createGameResult.gameID());
+
+        // Assert assigning player 2 to white throws AlreadyTakenException
+        assertThrows(AlreadyTakenException.class, () -> gameService.joinGame(registerResult2.authToken(), joinGameRequest2));
+
+        var joinGameRequest3 = new JoinGameRequest("BLACK", createGameResult.gameID());
+
+        // Assign player 1 to black
+        gameService.joinGame(registerResult1.authToken(), joinGameRequest3);
+
+        var joinGameRequest4 = new JoinGameRequest("BLACK", createGameResult.gameID());
+
+        // Assert assigning player 2 to black throws AlreadyTakenException
+        assertThrows(AlreadyTakenException.class, () -> gameService.joinGame(registerResult2.authToken(), joinGameRequest4));
+    }
+
 }
