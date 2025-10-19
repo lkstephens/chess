@@ -14,7 +14,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void registerGood() throws BadRequestException, UserService.AlreadyTakenException, DataAccessException {
+    void registerGood() throws BadRequestException, AlreadyTakenException, DataAccessException {
         var registerRequest = new RegisterRequest("lando", "lando", "lando@java.com");
 
         var service = new UserService();
@@ -45,7 +45,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void loginGood() throws BadRequestException, UserService.AlreadyTakenException, DataAccessException, UnauthorizedException {
+    void loginGood() throws BadRequestException, AlreadyTakenException, DataAccessException, UnauthorizedException {
 
         var registerRequest = new RegisterRequest("user", "pass", "user@example.com");
         var loginRequest = new LoginRequest("user", "pass");
@@ -87,7 +87,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void logoutGood() throws BadRequestException, UserService.AlreadyTakenException, DataAccessException, UnauthorizedException {
+    void logoutGood() throws BadRequestException, AlreadyTakenException, DataAccessException, UnauthorizedException {
 
         var service = new UserService();
 
@@ -109,7 +109,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void logoutBadAuth() throws BadRequestException, UserService.AlreadyTakenException, DataAccessException {
+    void logoutBadAuth() throws BadRequestException, AlreadyTakenException, DataAccessException {
 
         var service = new UserService();
         var registerRequest = new RegisterRequest("user", "pass", "user@example.com");
@@ -123,7 +123,7 @@ public class UserServiceTest {
 
 
     @Test
-    void createGameGood() throws BadRequestException, UserService.AlreadyTakenException, DataAccessException, UnauthorizedException {
+    void createGameGood() throws BadRequestException, AlreadyTakenException, DataAccessException, UnauthorizedException {
 
         var userService = new UserService();
         var registerRequest = new RegisterRequest("user", "pass", "user@example.com");
@@ -138,7 +138,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void createGameBadAuth() throws BadRequestException, UserService.AlreadyTakenException, DataAccessException {
+    void createGameBadAuth() throws BadRequestException, AlreadyTakenException, DataAccessException {
 
         var userService = new UserService();
         var registerRequest = new RegisterRequest("user", "pass", "user@example.com");

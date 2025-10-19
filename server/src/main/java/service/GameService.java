@@ -9,6 +9,7 @@ import datamodel.CreateGameResult;
 import datamodel.JoinGameRequest;
 import datamodel.ListGamesResult;
 import model.AuthData;
+import model.GameData;
 
 public class GameService {
 
@@ -64,11 +65,12 @@ public class GameService {
         }
     }
 
-    public void joinGame(String authToken, JoinGameRequest joinGameRequest) throws BadRequestException, UnauthorizedException, DataAccessException {
+    public void joinGame(String authToken, JoinGameRequest joinGameRequest) throws BadRequestException, AlreadyTakenException, UnauthorizedException, DataAccessException {
 
         String playerColor = joinGameRequest.playerColor();
         int gameID = joinGameRequest.gameID();
 
+        // Check for bad request (null, "", wrong color, gameID < 1)
         if (playerColor == null || playerColor.isEmpty() ||
             !playerColor.equals("WHITE") && !playerColor.equals("BLACK") ||
             gameID < 1) {
@@ -77,8 +79,15 @@ public class GameService {
 
         try {
 
-            if (gameDAO.getGame(gameID) == null) {
+            GameData gameData = gameDAO.getGame(gameID);
+
+            if (gameData == null) {
                 throw new BadRequestException("Error: game does not exist");
+            }
+
+            if ((gameData.whiteUsername() != null && playerColor.equals("WHITE")) ||
+                (gameData.blackUsername() != null && playerColor.equals("BLACK"))) {
+                throw new AlreadyTakenException("Error: already taken");
             }
 
             AuthData authData = authDAO.getAuth(authToken);

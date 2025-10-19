@@ -5,10 +5,7 @@ import dataaccess.DataAccessException;
 import datamodel.*;
 import io.javalin.*;
 import io.javalin.http.Context;
-import service.BadRequestException;
-import service.GameService;
-import service.UnauthorizedException;
-import service.UserService;
+import service.*;
 
 import java.util.Map;
 
@@ -55,7 +52,7 @@ public class Server {
         } catch (BadRequestException e) {
             ctx.status(400);
             ctx.result(serializer.toJson(Map.of("message", e.getMessage())));
-        } catch (UserService.AlreadyTakenException e) {
+        } catch (AlreadyTakenException e) {
             ctx.status(403);
             ctx.result(serializer.toJson(Map.of("message", e.getMessage())));
         } catch (DataAccessException e) {
@@ -158,6 +155,9 @@ public class Server {
             ctx.result(serializer.toJson(Map.of("message", e.getMessage())));
         } catch (UnauthorizedException e) {
             ctx.status(401);
+            ctx.result(serializer.toJson(Map.of("message", e.getMessage())));
+        } catch (AlreadyTakenException e) {
+            ctx.status(403);
             ctx.result(serializer.toJson(Map.of("message", e.getMessage())));
         } catch (DataAccessException e) {
             ctx.status(500);

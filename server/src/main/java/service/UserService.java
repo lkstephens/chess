@@ -30,7 +30,7 @@ public class UserService {
         // Check if there is a Bad Request (Checks for null, empty, and correct email syntax)
         if (username == null || password == null || email == null ||
             username.isEmpty() || password.isEmpty() ||
-            !email.contains("@") || !email.contains(".")) {
+            !email.contains(".")) {
             throw new BadRequestException("Error: bad request");
         }
 
@@ -113,11 +113,5 @@ public class UserService {
     // Facilitates sharing of the authData between UserService and GameService
     public AuthDAO getAuthDAO() {
         return authDAO;
-    }
-
-    public static class AlreadyTakenException extends Exception {
-        public AlreadyTakenException(String message) {
-            super(message);
-        }
     }
 }
