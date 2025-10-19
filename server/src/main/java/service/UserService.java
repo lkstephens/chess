@@ -34,7 +34,6 @@ public class UserService {
             throw new BadRequestException("Error: bad request");
         }
 
-        // Data access error handled with try-catch
         try {
             // See if the user is already in the database
             if (userDAO.getUser(username) != null) {
@@ -57,6 +56,7 @@ public class UserService {
     }
 
     public LoginResult login(LoginRequest loginRequest) throws BadRequestException, UnauthorizedException, DataAccessException {
+
         String username = loginRequest.username();
         String password = loginRequest.password();
 
@@ -108,6 +108,11 @@ public class UserService {
 
     public static String generateToken() {
         return UUID.randomUUID().toString();
+    }
+
+    // Facilitates sharing of the authData between UserService and GameService
+    public AuthDAO getAuthDAO() {
+        return authDAO;
     }
 
     public static class AlreadyTakenException extends Exception {

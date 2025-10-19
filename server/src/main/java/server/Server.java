@@ -20,13 +20,16 @@ public class Server {
 
     public Server() {
         userService = new UserService();
-        gameService = new GameService();
+        // Get the same AuthDAO as the one that exists in the UserService
+        gameService = new GameService(userService.getAuthDAO());
         server = Javalin.create(config -> config.staticFiles.add("web"));
 
         server.delete("db", this::clear);
         server.post("user", this::register);
         server.post("session", this::login);
         server.delete("session", this::logout);
+
+        server.post("game", this::createGame);
 
         // Register your endpoints and exception handlers here.
 
@@ -41,9 +44,9 @@ public class Server {
 
     private void register(Context ctx) {
         var serializer = new Gson();
+        var request = serializer.fromJson(ctx.body(), RegisterRequest.class);
         try {
 
-            var request = serializer.fromJson(ctx.body(), RegisterRequest.class);
             RegisterResult result = userService.register(request);
             ctx.result(serializer.toJson(result));
             ctx.status(200);
@@ -62,11 +65,12 @@ public class Server {
 
     private void login(Context ctx) {
         var serializer = new Gson();
-        try {
         var request = serializer.fromJson(ctx.body(), LoginRequest.class);
-        LoginResult result = userService.login(request);
-        ctx.result(serializer.toJson(result));
-        ctx.status(200);
+        try {
+
+            LoginResult result = userService.login(request);
+            ctx.result(serializer.toJson(result));
+            ctx.status(200);
 
         } catch (BadRequestException e) {
             ctx.status(400);
@@ -84,9 +88,33 @@ public class Server {
         var serializer = new Gson();
         String authToken = ctx.header("authorization");
         try {
+
             userService.logout(authToken);
             ctx.result("{}");
             ctx.status(200);
+
+        } catch (UnauthorizedException e) {
+            ctx.status(401);
+            ctx.result(serializer.toJson(Map.of("message", e.getMessage())));
+        } catch (DataAccessException e) {
+            ctx.status(500);
+            ctx.result(serializer.toJson(Map.of("message", e.getMessage())));
+        }
+    }
+
+    private void createGame(Context ctx) {
+        var serializer = new Gson();
+        String authToken = ctx.header("authorization");
+        var request = serializer.fromJson(ctx.body(), CreateGameRequest.class);
+        try {
+
+            CreateGameResult result = gameService.createGame(authToken, request);
+            ctx.result(serializer.toJson(result));
+            ctx.status(200);
+
+        } catch (BadRequestException e) {
+            ctx.status(400);
+            ctx.result(serializer.toJson(Map.of("message", e.getMessage())));
         } catch (UnauthorizedException e) {
             ctx.status(401);
             ctx.result(serializer.toJson(Map.of("message", e.getMessage())));

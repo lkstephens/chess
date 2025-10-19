@@ -1,10 +1,7 @@
 package service;
 
 import dataaccess.DataAccessException;
-import datamodel.LoginRequest;
-import datamodel.LoginResult;
-import datamodel.RegisterRequest;
-import datamodel.RegisterResult;
+import datamodel.*;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -115,13 +112,46 @@ public class UserServiceTest {
     void logoutBadAuth() throws BadRequestException, UserService.AlreadyTakenException, DataAccessException {
 
         var service = new UserService();
-
         var registerRequest = new RegisterRequest("user", "pass", "user@example.com");
         var registerResult = service.register(registerRequest);
         String badAuthToken = "bad4321auth1234";
 
         assertNotEquals(badAuthToken, registerResult.authToken());
         assertThrows(UnauthorizedException.class, () -> service.logout(badAuthToken));
+    }
+
+
+
+    @Test
+    void createGameGood() throws BadRequestException, UserService.AlreadyTakenException, DataAccessException, UnauthorizedException {
+
+        var userService = new UserService();
+        var registerRequest = new RegisterRequest("user", "pass", "user@example.com");
+        var registerResult = userService.register(registerRequest);
+
+        var gameService = new GameService(userService.getAuthDAO());
+        var createGameRequest = new CreateGameRequest("testGame");
+        var createGameResult = gameService.createGame(registerResult.authToken(),createGameRequest);
+
+        assertTrue(createGameResult.gameID() > 0);
+
+    }
+
+    @Test
+    void createGameBadAuth() throws BadRequestException, UserService.AlreadyTakenException, DataAccessException {
+
+        var userService = new UserService();
+        var registerRequest = new RegisterRequest("user", "pass", "user@example.com");
+        var registerResult = userService.register(registerRequest);
+        String badAuthToken = "bad4321auth1234";
+
+        var gameService = new GameService(userService.getAuthDAO());
+        var createGameRequest = new CreateGameRequest("testGame");
+
+        assertNotEquals(badAuthToken, registerResult.authToken());
+        assertThrows(UnauthorizedException.class, () -> gameService.createGame(badAuthToken,createGameRequest));
+
+
     }
 
 }
