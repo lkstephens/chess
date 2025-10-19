@@ -21,6 +21,7 @@ public class Server {
         gameService = new GameService(userService.getAuthDAO());
         server = Javalin.create(config -> config.staticFiles.add("web"));
 
+        // Endpoints and handlers
         server.delete("db", this::clear);
         server.post("user", this::register);
         server.post("session", this::login);
@@ -29,15 +30,21 @@ public class Server {
         server.post("game", this::createGame);
         server.put("game", this::joinGame);
 
-        // Register your endpoints and exception handlers here.
-
     }
 
     private void clear(Context ctx) {
-        userService.clear();
-        gameService.clear();
-        ctx.result("{}");
-        ctx.status(200);
+        var serializer = new Gson();
+        try {
+
+            userService.clear();
+            gameService.clear();
+            ctx.result("{}");
+            ctx.status(200);
+
+        } catch (DataAccessException e) {
+            ctx.status(500);
+            ctx.result(serializer.toJson(Map.of("message",e.getMessage())));
+        }
     }
 
     private void register(Context ctx) {

@@ -13,8 +13,12 @@ public class MemoryGameDAO implements GameDAO{
     private final TreeMap<Integer, GameData> gameDataTreeMap = new TreeMap<>();
 
     @Override
-    public void clear() {
-        gameDataTreeMap.clear();
+    public void clear() throws DataAccessException {
+        try {
+            gameDataTreeMap.clear();
+        } catch (Exception e) {
+            throw new DataAccessException("Error: database access error (HashMap)");
+        }
     }
 
     @Override

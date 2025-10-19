@@ -9,8 +9,12 @@ public class MemoryAuthDAO implements AuthDAO{
     private final HashMap<String, AuthData> authDataHashMap = new HashMap<>();
 
     @Override
-    public void clear() {
-        authDataHashMap.clear();
+    public void clear() throws DataAccessException {
+        try {
+            authDataHashMap.clear();
+        } catch (Exception e) {
+            throw new DataAccessException("Error: database access error (HashMap)");
+        }
     }
 
     @Override

@@ -16,9 +16,13 @@ public class UserService {
         authDAO = new MemoryAuthDAO();
     }
 
-    public void clear() {
-        userDAO.clear();
-        authDAO.clear();
+    public void clear() throws DataAccessException {
+        try {
+            userDAO.clear();
+            authDAO.clear();
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Error: database access error (HashMap)", e);
+        }
     }
 
     public RegisterResult register(RegisterRequest registerRequest) throws BadRequestException, AlreadyTakenException, DataAccessException {

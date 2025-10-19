@@ -21,8 +21,12 @@ public class GameService {
         this.authDAO = authDAO;
     }
 
-    public void clear() {
-        gameDAO.clear();
+    public void clear() throws DataAccessException {
+        try {
+            gameDAO.clear();
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Error: database access error (HashMap)");
+        }
     }
 
     public ListGamesResult listGames(String authToken) throws UnauthorizedException, DataAccessException{

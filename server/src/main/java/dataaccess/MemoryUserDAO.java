@@ -9,8 +9,12 @@ public class MemoryUserDAO implements UserDAO{
     private final HashMap<String, UserData> userDataHashMap = new HashMap<>();
 
     @Override
-    public void clear() {
-        userDataHashMap.clear();
+    public void clear() throws DataAccessException {
+        try {
+            userDataHashMap.clear();
+        } catch (Exception e) {
+            throw new DataAccessException("Error: database access error (HashMap)");
+        }
     }
 
     @Override
@@ -19,7 +23,7 @@ public class MemoryUserDAO implements UserDAO{
     }
 
     @Override
-    public UserData getUser(String username) throws DataAccessException{
+    public UserData getUser(String username) throws DataAccessException {
         try {
             return userDataHashMap.get(username);
         } catch (Exception e) {
