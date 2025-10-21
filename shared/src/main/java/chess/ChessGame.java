@@ -145,18 +145,16 @@ public class ChessGame {
     public boolean opposingTeamCapture(TeamColor teamColor, ChessBoard board, ChessPosition kingPosition) {
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
-                ChessPosition tempPosition = new ChessPosition(row, col);
-                ChessPiece tempPiece = board.getPiece(tempPosition);
-                if (tempPiece != null) {
-                    TeamColor tempPieceColor = tempPiece.getTeamColor();
-                    // If it's the opposing team's piece, get its moves
-                    if (tempPieceColor != teamColor) {
-                        Collection<ChessMove> tempPieceMoves = tempPiece.pieceMoves(board, tempPosition);
-                        for (ChessMove move : tempPieceMoves) {
-                            if (move.getEndPosition().equals(kingPosition)) {
-                                return true;
-                            }
-                        }
+                ChessPosition pos = new ChessPosition(row, col);
+                ChessPiece piece = board.getPiece(pos);
+                // If there's no piece there or the piece is the same color as the current team, skip
+                if (piece == null || piece.getTeamColor() == teamColor) {
+                    continue;
+                }
+                // Find if there's a move to capture the king
+                for (ChessMove move : piece.pieceMoves(board, pos)) {
+                    if (move.getEndPosition().equals(kingPosition)) {
+                        return true;
                     }
                 }
             }

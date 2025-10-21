@@ -43,7 +43,8 @@ public class GameService {
         }
     }
 
-    public CreateGameResult createGame(String authToken, CreateGameRequest createGameRequest) throws BadRequestException, UnauthorizedException, DataAccessException {
+    public CreateGameResult createGame(String authToken, CreateGameRequest createGameRequest)
+           throws BadRequestException, UnauthorizedException, DataAccessException {
 
         String gameName = createGameRequest.gameName();
 
@@ -69,7 +70,8 @@ public class GameService {
         }
     }
 
-    public void joinGame(String authToken, JoinGameRequest joinGameRequest) throws BadRequestException, AlreadyTakenException, UnauthorizedException, DataAccessException {
+    public void joinGame(String authToken, JoinGameRequest joinGameRequest)
+           throws BadRequestException, AlreadyTakenException, UnauthorizedException, DataAccessException {
 
         String playerColor = joinGameRequest.playerColor();
         int gameID = joinGameRequest.gameID();
