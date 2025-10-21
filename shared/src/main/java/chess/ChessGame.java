@@ -63,8 +63,8 @@ public class ChessGame {
                 ChessBoard tempBoard = (ChessBoard) board.clone();
                 // Make the move
                 tempBoard.movePiece(move.getStartPosition(), move.getEndPosition());
-                // Does the move leave the king in check? -- Overloaded method to include the temporary chessboard
-                if (isInCheck(teamColor, tempBoard)) {
+                // Does the move leave the king in check?
+                if (isInCheckTempBoard(teamColor, tempBoard)) {
                     movesToRemove.add(move);
                 }
             }
@@ -130,33 +130,19 @@ public class ChessGame {
         // Find the King
         ChessPosition kingPosition = board.getKingLocation(teamColor);
 
-        // Determine if the opposing team can capture the king CURRENTLY
-        for (int row = 1; row <= 8; row++) {
-            for (int col = 1; col <= 8; col++) {
-                ChessPosition tempPosition = new ChessPosition(row, col);
-                ChessPiece tempPiece = board.getPiece(tempPosition);
-                if (tempPiece != null) {
-                    TeamColor tempPieceColor = tempPiece.getTeamColor();
-                    // If it's the opposing team's piece, get its moves
-                    if (tempPieceColor != teamColor) {
-                        Collection<ChessMove> tempPieceMoves = tempPiece.pieceMoves(board, tempPosition);
-                        for (ChessMove move : tempPieceMoves) {
-                            if (move.getEndPosition().equals(kingPosition)) {
-                                return true;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return false;
+        // Determine if the opposing team can capture the king
+        return opposingTeamCapture(teamColor, board, kingPosition);
     }
 
-    public boolean isInCheck(TeamColor teamColor, ChessBoard board) {
-        // Find the King
-        ChessPosition kingPosition = board.getKingLocation(teamColor);
+    public boolean isInCheckTempBoard(TeamColor teamColor, ChessBoard tempBoard) {
+        // Find the King on tempBoard
+        ChessPosition kingPosition = tempBoard.getKingLocation(teamColor);
 
-        // Determine if the opposing team can capture the king CURRENTLY
+        // Determine if the opposing team can capture the king
+        return opposingTeamCapture(teamColor, tempBoard, kingPosition);
+    }
+
+    public boolean opposingTeamCapture(TeamColor teamColor, ChessBoard board, ChessPosition kingPosition) {
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
                 ChessPosition tempPosition = new ChessPosition(row, col);
