@@ -12,27 +12,27 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
     }
 
     @Override
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition startPosition) {
 
-        ChessPiece myPiece = board.getPiece(myPosition);
-        ChessGame.TeamColor myTeamColor = myPiece.getTeamColor();
+        ChessPiece piece = board.getPiece(startPosition);
+        ChessGame.TeamColor teamColor = piece.getTeamColor();
 
-        if (myTeamColor == ChessGame.TeamColor.WHITE) {
-            pawnMovesBase(board, myPosition, ChessGame.TeamColor.WHITE);
-            pawnMovesCapture(board, myPosition, ChessGame.TeamColor.WHITE);
+        if (teamColor == ChessGame.TeamColor.WHITE) {
+            pawnMovesBase(board, startPosition, ChessGame.TeamColor.WHITE);
+            pawnMovesCapture(board, startPosition, ChessGame.TeamColor.WHITE);
         } else {
-            pawnMovesBase(board, myPosition, ChessGame.TeamColor.BLACK);
-            pawnMovesCapture(board, myPosition, ChessGame.TeamColor.BLACK);
+            pawnMovesBase(board, startPosition, ChessGame.TeamColor.BLACK);
+            pawnMovesCapture(board, startPosition, ChessGame.TeamColor.BLACK);
         }
 
         return pawnMoves;
 
     }
 
-    private void pawnMovesBase(ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor teamColor) {
+    private void pawnMovesBase(ChessBoard board, ChessPosition startPosition, ChessGame.TeamColor teamColor) {
 
-        int startRow = myPosition.getRow();
-        int startCol = myPosition.getColumn();
+        int startRow = startPosition.getRow();
+        int startCol = startPosition.getColumn();
         boolean isWhite = teamColor != ChessGame.TeamColor.BLACK;
 
         // Move up 1
@@ -48,14 +48,7 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
 
             if (currPiece == null) {
                 // Check for promotion
-                if (currRow == promotionRow) {
-                    addMove(new ChessMove(myPosition, currPosition, ChessPiece.PieceType.QUEEN));
-                    addMove(new ChessMove(myPosition, currPosition, ChessPiece.PieceType.ROOK));
-                    addMove(new ChessMove(myPosition, currPosition, ChessPiece.PieceType.BISHOP));
-                    addMove(new ChessMove(myPosition, currPosition, ChessPiece.PieceType.KNIGHT));
-                } else {
-                    addMove(new ChessMove(myPosition, currPosition, null));
-                }
+                checkForPromotion(currRow, promotionRow, startPosition, currPosition);
 
                 // Check for double advance
                 if (startRow == pawnStartingRow) {
@@ -68,16 +61,16 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
                     currPiece = board.getPiece(currPosition);
 
                     if (currPiece == null) {
-                        addMove(new ChessMove(myPosition, currPosition, null));
+                        addMove(new ChessMove(startPosition, currPosition, null));
                     }
                 }
             }
         }
     }
 
-    private void pawnMovesCapture(ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor teamColor) {
-        int startRow = myPosition.getRow();
-        int startCol = myPosition.getColumn();
+    private void pawnMovesCapture(ChessBoard board, ChessPosition startPosition, ChessGame.TeamColor teamColor) {
+        int startRow = startPosition.getRow();
+        int startCol = startPosition.getColumn();
         boolean isWhite = teamColor != ChessGame.TeamColor.BLACK;
 
         // Capture Left
@@ -85,40 +78,36 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         int currCol = startCol-1;
         int promotionRow = isWhite ? 8 : 1;
 
-        // Still on the board
-        if (currCol >= 1 && currRow <= 8 && currRow >= 1) {
-            ChessPosition currPosition = new ChessPosition(currRow, currCol);
-            ChessPiece currPiece = board.getPiece(currPosition);
-            if (currPiece != null && currPiece.getTeamColor() != teamColor) {
-                if (currRow == promotionRow) {
-                    addMove(new ChessMove(myPosition, currPosition, ChessPiece.PieceType.QUEEN));
-                    addMove(new ChessMove(myPosition, currPosition, ChessPiece.PieceType.ROOK));
-                    addMove(new ChessMove(myPosition, currPosition, ChessPiece.PieceType.BISHOP));
-                    addMove(new ChessMove(myPosition, currPosition, ChessPiece.PieceType.KNIGHT));
-                } else {
-                    addMove(new ChessMove(myPosition, currPosition, null));
-                }
-            }
-        }
+        addCaptureMoves(currRow, currCol, board, teamColor, promotionRow, startPosition);
 
         // Capture Right
         currRow = isWhite ? startRow+1 : startRow-1;
         currCol = startCol+1;
 
+        addCaptureMoves(currRow, currCol, board, teamColor, promotionRow, startPosition);
+    }
+
+    public void addCaptureMoves(int currRow, int currCol, ChessBoard board, ChessGame.TeamColor teamColor,
+                                int promotionRow, ChessPosition startPosition) {
         // Still on the board
-        if (currCol <= 8 && currRow <= 8 && currRow >= 1) {
+        if (currRow >= 1 && currRow <= 8 && currCol >= 1 && currCol <= 8) {
             ChessPosition currPosition = new ChessPosition(currRow, currCol);
             ChessPiece currPiece = board.getPiece(currPosition);
             if (currPiece != null && currPiece.getTeamColor() != teamColor) {
-                if (currRow == promotionRow) {
-                    addMove(new ChessMove(myPosition, currPosition, ChessPiece.PieceType.QUEEN));
-                    addMove(new ChessMove(myPosition, currPosition, ChessPiece.PieceType.ROOK));
-                    addMove(new ChessMove(myPosition, currPosition, ChessPiece.PieceType.BISHOP));
-                    addMove(new ChessMove(myPosition, currPosition, ChessPiece.PieceType.KNIGHT));
-                } else {
-                    addMove(new ChessMove(myPosition, currPosition, null));
-                }
+                checkForPromotion(currRow, promotionRow, startPosition, currPosition);
             }
+        }
+    }
+
+    public void checkForPromotion(int currRow, int promotionRow,
+                                  ChessPosition startPosition, ChessPosition currPosition) {
+        if (currRow == promotionRow) {
+            addMove(new ChessMove(startPosition, currPosition, ChessPiece.PieceType.QUEEN));
+            addMove(new ChessMove(startPosition, currPosition, ChessPiece.PieceType.ROOK));
+            addMove(new ChessMove(startPosition, currPosition, ChessPiece.PieceType.BISHOP));
+            addMove(new ChessMove(startPosition, currPosition, ChessPiece.PieceType.KNIGHT));
+        } else {
+            addMove(new ChessMove(startPosition, currPosition, null));
         }
     }
 }
