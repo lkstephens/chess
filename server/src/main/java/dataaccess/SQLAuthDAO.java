@@ -3,6 +3,7 @@ package dataaccess;
 import com.google.gson.Gson;
 import model.AuthData;
 
+import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,13 +16,35 @@ public class SQLAuthDAO implements AuthDAO{
     }
 
     @Override
-    public void clear() {
-
+    public void clear() throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "TRUNCATE auth_data";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                int rowsDeleted = ps.executeUpdate();
+                if (rowsDeleted == 0) {
+                    throw new DataAccessException("Error: no rows deleted");
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: failed to delete auth data");
+        }
     }
 
     @Override
-    public void createAuth(AuthData authData) {
-
+    public void createAuth(AuthData authData) throws DataAccessException{
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "INSERT INTO auth_data (authToken, username) VALUES (?,?)";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, authData.authToken());
+                ps.setString(2, authData.username());
+                int rowsInserted = ps.executeUpdate();
+                if (rowsInserted == 0) {
+                    throw new DataAccessException("Error: no rows inserted");
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: failed to delete auth data");
+        }
     }
 
     @Override
@@ -37,15 +60,51 @@ public class SQLAuthDAO implements AuthDAO{
                 }
             }
         } catch (Exception e) {
-            throw new DataAccessException("Error: ");
+            throw new DataAccessException("Error: unable to retrieve auth data", e);
         }
         return null;
     }
 
     @Override
-    public void deleteAuth(AuthData authData) {
-
+    public void deleteAuth(String authToken) throws DataAccessException{
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "DELETE FROM auth_data WHERE authToken=?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, authToken);
+                int rowsDeleted = ps.executeUpdate();
+                if (rowsDeleted == 0) {
+                    throw new DataAccessException("Error: no rows deleted");
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: failed to delete auth data");
+        }
     }
+
+//    private int executeUpdate(String statement, Object... params) throws DataAccessException, SQLException {
+//        try (Connection conn = DatabaseManager.getConnection()) {
+//            try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+//                for (int i = 0; i < params.length; i++) {
+//                    Object param = params[i];
+//                    if (param instanceof String p) {
+//                        ps.setString(i + 1, p);
+//                    } else if (param == null) {
+//                        ps.setNull(i + 1, NULL);
+//                    }
+//                }
+//                ps.executeUpdate();
+//
+//                ResultSet rs = ps.getGeneratedKeys();
+//                if (rs.next()) {
+//                    return rs.getInt(1);
+//                }
+//
+//                return 0;
+//            }
+//        } catch (SQLException e) {
+//            throw new DataAccessException("Error: could not update database", e);
+//        }
+//    }
 
     private AuthData readAuthData(ResultSet rs) throws SQLException {
         var authToken = rs.getString("authToken");

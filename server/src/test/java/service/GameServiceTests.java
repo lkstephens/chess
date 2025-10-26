@@ -1,6 +1,6 @@
 package service;
 
-import dataaccess.DataAccessException;
+import dataaccess.*;
 import datamodel.*;
 import org.junit.jupiter.api.*;
 
@@ -11,11 +11,15 @@ public class GameServiceTests {
     @Test
     void listGamesGood() throws BadRequestException, AlreadyTakenException, DataAccessException, UnauthorizedException {
 
-        var userService = new UserService();
+        var userDAO = new MemoryUserDAO();
+        var authDAO = new MemoryAuthDAO();
+        var gameDAO = new MemoryGameDAO();
+
+        var userService = new UserService(userDAO, authDAO);
         var registerRequest = new RegisterRequest("user", "pass", "user@example.com");
         var registerResult = userService.register(registerRequest);
 
-        var gameService = new GameService(userService.getAuthDAO());
+        var gameService = new GameService(gameDAO, authDAO);
 
         // Empty list of games before adding new games
         assertTrue(gameService.listGames(registerResult.authToken()).games().isEmpty());
@@ -44,12 +48,16 @@ public class GameServiceTests {
     @Test
     void listGamesBadAuth() throws BadRequestException, AlreadyTakenException, DataAccessException {
 
-        var userService = new UserService();
+        var userDAO = new MemoryUserDAO();
+        var authDAO = new MemoryAuthDAO();
+        var gameDAO = new MemoryGameDAO();
+
+        var userService = new UserService(userDAO, authDAO);
         var registerRequest = new RegisterRequest("user", "pass", "user@example.com");
         var registerResult = userService.register(registerRequest);
         String badAuthToken = "bad4321auth1234";
 
-        var gameService = new GameService(userService.getAuthDAO());
+        var gameService = new GameService(gameDAO, authDAO);
 
         assertNotEquals(badAuthToken, registerResult.authToken());
         assertThrows(UnauthorizedException.class, () -> gameService.listGames(badAuthToken));
@@ -59,11 +67,15 @@ public class GameServiceTests {
     @Test
     void createGameGood() throws BadRequestException, AlreadyTakenException, DataAccessException, UnauthorizedException {
 
-        var userService = new UserService();
+        var userDAO = new MemoryUserDAO();
+        var authDAO = new MemoryAuthDAO();
+        var gameDAO = new MemoryGameDAO();
+
+        var userService = new UserService(userDAO, authDAO);
         var registerRequest = new RegisterRequest("user", "pass", "user@example.com");
         var registerResult = userService.register(registerRequest);
 
-        var gameService = new GameService(userService.getAuthDAO());
+        var gameService = new GameService(gameDAO, authDAO);
         var createGameRequest = new CreateGameRequest("testGame");
         var createGameResult = gameService.createGame(registerResult.authToken(),createGameRequest);
 
@@ -74,12 +86,16 @@ public class GameServiceTests {
     @Test
     void createGameBadAuth() throws BadRequestException, AlreadyTakenException, DataAccessException {
 
-        var userService = new UserService();
+        var userDAO = new MemoryUserDAO();
+        var authDAO = new MemoryAuthDAO();
+        var gameDAO = new MemoryGameDAO();
+
+        var userService = new UserService(userDAO, authDAO);
         var registerRequest = new RegisterRequest("user", "pass", "user@example.com");
         var registerResult = userService.register(registerRequest);
         String badAuthToken = "bad4321auth1234";
 
-        var gameService = new GameService(userService.getAuthDAO());
+        var gameService = new GameService(gameDAO, authDAO);
         var createGameRequest = new CreateGameRequest("testGame");
 
         assertNotEquals(badAuthToken, registerResult.authToken());
@@ -91,11 +107,15 @@ public class GameServiceTests {
     @Test
     void joinGameGood() throws BadRequestException, AlreadyTakenException, DataAccessException, UnauthorizedException {
 
-        var userService = new UserService();
+        var userDAO = new MemoryUserDAO();
+        var authDAO = new MemoryAuthDAO();
+        var gameDAO = new MemoryGameDAO();
+
+        var userService = new UserService(userDAO, authDAO);
         var registerRequest1 = new RegisterRequest("user", "pass", "user@example.com");
         var registerResult1 = userService.register(registerRequest1);
 
-        var gameService = new GameService(userService.getAuthDAO());
+        var gameService = new GameService(gameDAO, authDAO);
         var createGameRequest = new CreateGameRequest("testGame");
         var createGameResult = gameService.createGame(registerResult1.authToken(), createGameRequest);
 
@@ -117,11 +137,16 @@ public class GameServiceTests {
 
     @Test
     void joinGameAlreadyTaken() throws BadRequestException, AlreadyTakenException, DataAccessException, UnauthorizedException {
-        var userService = new UserService();
+
+        var userDAO = new MemoryUserDAO();
+        var authDAO = new MemoryAuthDAO();
+        var gameDAO = new MemoryGameDAO();
+
+        var userService = new UserService(userDAO, authDAO);
         var registerRequest1 = new RegisterRequest("user", "pass", "user@example.com");
         var registerResult1 = userService.register(registerRequest1);
 
-        var gameService = new GameService(userService.getAuthDAO());
+        var gameService = new GameService(gameDAO, authDAO);
         var createGameRequest = new CreateGameRequest("testGame");
         var createGameResult = gameService.createGame(registerResult1.authToken(), createGameRequest);
 

@@ -1,7 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
+import dataaccess.*;
 import datamodel.*;
 import io.javalin.*;
 import io.javalin.http.Context;
@@ -16,9 +16,13 @@ public class Server {
     private final GameService gameService;
 
     public Server() {
-        userService = new UserService();
-        // Get the same AuthDAO as the one that exists in the UserService
-        gameService = new GameService(userService.getAuthDAO());
+
+        UserDAO userDAO = new MemoryUserDAO();
+        AuthDAO authDAO = new MemoryAuthDAO();
+        GameDAO gameDAO = new MemoryGameDAO();
+        userService = new UserService(userDAO, authDAO);
+        gameService = new GameService(gameDAO, authDAO);
+
         server = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Endpoints and handlers

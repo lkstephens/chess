@@ -2,6 +2,7 @@ package dataaccess;
 
 import model.AuthData;
 
+import javax.xml.crypto.Data;
 import java.util.HashMap;
 
 public class MemoryAuthDAO implements AuthDAO{
@@ -18,8 +19,12 @@ public class MemoryAuthDAO implements AuthDAO{
     }
 
     @Override
-    public void createAuth(AuthData authData) {
-        authDataHashMap.put(authData.authToken(), authData);
+    public void createAuth(AuthData authData) throws DataAccessException {
+        try {
+            authDataHashMap.put(authData.authToken(), authData);
+        } catch (Exception e) {
+            throw new DataAccessException("Error: database access error (HashMap)");
+        }
     }
 
     @Override
@@ -32,7 +37,11 @@ public class MemoryAuthDAO implements AuthDAO{
     }
 
     @Override
-    public void deleteAuth(AuthData authData) {
-        authDataHashMap.remove(authData.authToken());
+    public void deleteAuth(String authToken) throws DataAccessException {
+        try {
+            authDataHashMap.remove(authToken);
+        } catch (Exception e) {
+            throw new DataAccessException("Error: database access error (HashMap)");
+        }
     }
 }

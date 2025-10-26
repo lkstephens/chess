@@ -11,9 +11,9 @@ public class UserService {
     private final UserDAO userDAO;
     private final AuthDAO authDAO;
 
-    public UserService() {
-        userDAO = new MemoryUserDAO();
-        authDAO = new MemoryAuthDAO();
+    public UserService(UserDAO userDAO, AuthDAO authDAO) {
+        this.userDAO = userDAO;
+        this.authDAO = authDAO;
     }
 
     public void clear() throws DataAccessException {
@@ -102,7 +102,7 @@ public class UserService {
             if (authData == null) {
                 throw new UnauthorizedException("Error: unauthorized");
             } else {
-                authDAO.deleteAuth(authData);
+                authDAO.deleteAuth(authToken);
             }
 
         } catch (DataAccessException e) {
@@ -112,10 +112,5 @@ public class UserService {
 
     public static String generateToken() {
         return UUID.randomUUID().toString();
-    }
-
-    // Facilitates sharing of the authData between UserService and GameService
-    public AuthDAO getAuthDAO() {
-        return authDAO;
     }
 }

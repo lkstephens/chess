@@ -1,6 +1,9 @@
 package service;
 
 import dataaccess.DataAccessException;
+import dataaccess.MemoryAuthDAO;
+import dataaccess.MemoryGameDAO;
+import dataaccess.MemoryUserDAO;
 import datamodel.*;
 import org.junit.jupiter.api.*;
 
@@ -11,14 +14,18 @@ public class UserServiceTests {
     @Test
     void clearFull() throws BadRequestException, AlreadyTakenException, DataAccessException, UnauthorizedException {
 
-        var userService = new UserService();
+        var userDAO = new MemoryUserDAO();
+        var authDAO = new MemoryAuthDAO();
+        var gameDAO = new MemoryGameDAO();
+
+        var userService = new UserService(userDAO, authDAO);
         userService.register(new RegisterRequest("user1", "pass1", "user1@email.com"));
         userService.register(new RegisterRequest("user2", "pass2", "user2@email.com"));
         var result = userService.register(new RegisterRequest("user3", "pass3", "user3@email.com"));
 
         var user3AuthToken = result.authToken();
 
-        var gameService = new GameService(userService.getAuthDAO());
+        var gameService = new GameService(gameDAO, authDAO);
         gameService.createGame(user3AuthToken, new CreateGameRequest("game1"));
         gameService.createGame(user3AuthToken, new CreateGameRequest("game2"));
         gameService.createGame(user3AuthToken, new CreateGameRequest("game3"));
@@ -35,8 +42,12 @@ public class UserServiceTests {
     @Test
     void clearEmpty() {
 
-        var userService = new UserService();
-        var gameService = new GameService(userService.getAuthDAO());
+        var userDAO = new MemoryUserDAO();
+        var authDAO = new MemoryAuthDAO();
+        var gameDAO = new MemoryGameDAO();
+
+        var userService = new UserService(userDAO, authDAO);
+        var gameService = new GameService(gameDAO, authDAO);
 
         assertDoesNotThrow(userService::clear);
         assertDoesNotThrow(gameService::clear);
@@ -46,7 +57,10 @@ public class UserServiceTests {
     @Test
     void registerGood() throws BadRequestException, AlreadyTakenException, DataAccessException {
 
-        var service = new UserService();
+        var userDAO = new MemoryUserDAO();
+        var authDAO = new MemoryAuthDAO();
+
+        var service = new UserService(userDAO, authDAO);
         var registerRequest = new RegisterRequest("lando", "lando", "lando@java.com");
 
         RegisterResult response = service.register(registerRequest);
@@ -60,7 +74,10 @@ public class UserServiceTests {
     @Test
     void registerEmptyFields() {
 
-        var service = new UserService();
+        var userDAO = new MemoryUserDAO();
+        var authDAO = new MemoryAuthDAO();
+
+        var service = new UserService(userDAO, authDAO);
 
         var registerRequest1 = new RegisterRequest("", "test", "testemail@gmail.com");
         var registerRequest2 = new RegisterRequest("test2", "", "testemail@gmail.com");
@@ -77,10 +94,13 @@ public class UserServiceTests {
     @Test
     void loginGood() throws BadRequestException, AlreadyTakenException, DataAccessException, UnauthorizedException {
 
+        var userDAO = new MemoryUserDAO();
+        var authDAO = new MemoryAuthDAO();
+
         var registerRequest = new RegisterRequest("user", "pass", "user@example.com");
         var loginRequest = new LoginRequest("user", "pass");
 
-        var service = new UserService();
+        var service = new UserService(userDAO, authDAO);
 
         service.register(registerRequest);
         LoginResult response = service.login(loginRequest);
@@ -96,8 +116,11 @@ public class UserServiceTests {
     @Test
     void loginUserNotCreated() {
 
+        var userDAO = new MemoryUserDAO();
+        var authDAO = new MemoryAuthDAO();
+
         var loginRequest = new LoginRequest("user", "pass");
-        var service = new UserService();
+        var service = new UserService(userDAO, authDAO);
         assertThrows(UnauthorizedException.class, () -> service.login(loginRequest));
 
     }
@@ -105,9 +128,12 @@ public class UserServiceTests {
     @Test
     void loginIncorrectPassword() {
 
+        var userDAO = new MemoryUserDAO();
+        var authDAO = new MemoryAuthDAO();
+
         var registerRequest = new RegisterRequest("user", "pass", "email@domain.com");
         var loginRequest = new LoginRequest("user", "password");
-        var service = new UserService();
+        var service = new UserService(userDAO, authDAO);
 
         assertThrows(UnauthorizedException.class, () -> {
             service.register(registerRequest);
@@ -119,7 +145,10 @@ public class UserServiceTests {
     @Test
     void logoutGood() throws BadRequestException, AlreadyTakenException, DataAccessException, UnauthorizedException {
 
-        var service = new UserService();
+        var userDAO = new MemoryUserDAO();
+        var authDAO = new MemoryAuthDAO();
+
+        var service = new UserService(userDAO, authDAO);
 
         // Register
         var registerRequest = new RegisterRequest("user", "pass", "user@example.com");
@@ -141,7 +170,10 @@ public class UserServiceTests {
     @Test
     void logoutBadAuth() throws BadRequestException, AlreadyTakenException, DataAccessException {
 
-        var service = new UserService();
+        var userDAO = new MemoryUserDAO();
+        var authDAO = new MemoryAuthDAO();
+
+        var service = new UserService(userDAO, authDAO);
         var registerRequest = new RegisterRequest("user", "pass", "user@example.com");
         var registerResult = service.register(registerRequest);
         String badAuthToken = "bad4321auth1234";
