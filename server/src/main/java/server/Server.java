@@ -20,6 +20,15 @@ public class Server {
         UserDAO userDAO = new MemoryUserDAO();
         AuthDAO authDAO = new MemoryAuthDAO();
         GameDAO gameDAO = new MemoryGameDAO();
+
+        try {
+            //userDAO = new MemoryUserDAO();
+            authDAO = new SQLAuthDAO();
+            //gameDAO = new MemoryGameDAO();
+        } catch (DataAccessException e) {
+            System.err.print("Server could not connect to database");
+        }
+
         userService = new UserService(userDAO, authDAO);
         gameService = new GameService(gameDAO, authDAO);
 
