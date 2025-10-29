@@ -3,6 +3,9 @@ package dataaccess;
 import datamodel.RegisterRequest;
 import model.UserData;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 public class SQLUserDAO implements UserDAO{
     @Override
     public void clear() {
@@ -18,4 +21,5 @@ public class SQLUserDAO implements UserDAO{
     public UserData getUser(String username) throws DataAccessException{
         return new UserData("1","2","3");       // DELETE ME
     }
+
 }

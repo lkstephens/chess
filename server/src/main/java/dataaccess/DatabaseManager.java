@@ -74,4 +74,44 @@ public class DatabaseManager {
         var port = Integer.parseInt(props.getProperty("db.port"));
         connectionUrl = String.format("jdbc:mysql://%s:%d", host, port);
     }
+
+    private static final String[] tableCreateStatements = {
+            """
+            CREATE TABLE IF NOT EXISTS  user_data (
+              `username` varchar(32) NOT NULL,
+              `password` varchar(128) NOT NULL,
+              `email` varchar(50) NOT NULL,
+              PRIMARY KEY (`username`)
+              ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS  auth_data (
+              `authToken` char(36) NOT NULL,
+              `username` varchar(32) NOT NULL,
+              PRIMARY KEY (`authToken`)
+              ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS game_data (
+              `gameID` INT NOT NULL AUTO_INCREMENT,
+              `whiteUsername` varchar(32),
+              `blackUsername` varchar(32),
+              `gameName` varchar(32) NOT NULL,
+              `game` TEXT NOT NULL,
+              PRIMARY KEY (`gameID`)
+              ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """
+    };
+
+    public static void configureDatabase() throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            for (String statement : tableCreateStatements) {
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException("Error: could not configure database", ex);
+        }
+    }
 }
