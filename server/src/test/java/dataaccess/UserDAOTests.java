@@ -80,6 +80,7 @@ public class UserDAOTests {
         userDAO.createUser(user);
 
         assertNull(userDAO.getUser("wrongUsername"));
+
     }
 
 }
