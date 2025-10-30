@@ -4,7 +4,7 @@ import model.UserData;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UserDAOTest {
+public class GameDAOTests {
 
     @Test
     void clear() throws DataAccessException {
