@@ -21,13 +21,10 @@ public class SQLAuthDAO implements AuthDAO{
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "TRUNCATE auth_data";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                int rowsDeleted = ps.executeUpdate();
-                if (rowsDeleted == 0) {
-                    throw new DataAccessException("Error: no rows deleted");
-                }
+                ps.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error: failed to delete auth data");
+            throw new DataAccessException("Error: failed to clear auth_data", e);
         }
     }
 
@@ -44,14 +41,14 @@ public class SQLAuthDAO implements AuthDAO{
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error: failed to delete auth data");
+            throw new DataAccessException("Error: failed to insert auth data");
         }
     }
 
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT authToken, username FROM auth_data WHERE authToken=?";
+            var statement = "SELECT * FROM auth_data WHERE authToken=?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 ps.setString(1, authToken);
                 try (ResultSet rs = ps.executeQuery()) {

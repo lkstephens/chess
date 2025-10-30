@@ -2,6 +2,7 @@ package dataaccess;
 
 import model.UserData;
 
+import javax.xml.crypto.Data;
 import java.util.HashMap;
 
 public class MemoryUserDAO implements UserDAO{
@@ -18,8 +19,12 @@ public class MemoryUserDAO implements UserDAO{
     }
 
     @Override
-    public void createUser(UserData userData) {
-        userDataHashMap.put(userData.username(), userData);
+    public void createUser(UserData userData) throws DataAccessException {
+        try {
+            userDataHashMap.put(userData.username(), userData);
+        } catch (Exception e) {
+            throw new DataAccessException("Error: database access error (HashMap)");
+        }
     }
 
     @Override
