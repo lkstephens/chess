@@ -48,7 +48,7 @@ public class UserDAOTests {
     }
 
     @Test
-    void createUserInvalidInput() throws DataAccessException {
+    void createUserInvalidInput() {
 
         var user1 = new UserData(null, "password", "email@email.com");
         var user2 = new UserData("username", null, "email@email.com");
