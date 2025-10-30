@@ -14,7 +14,7 @@ public class MemoryAuthDAO implements AuthDAO{
         try {
             authDataHashMap.clear();
         } catch (Exception e) {
-            throw new DataAccessException("Error: database access error (HashMap)");
+            throw new DataAccessException("Error: data access error (HashMap)");
         }
     }
 
@@ -23,7 +23,7 @@ public class MemoryAuthDAO implements AuthDAO{
         try {
             authDataHashMap.put(authData.authToken(), authData);
         } catch (Exception e) {
-            throw new DataAccessException("Error: database access error (HashMap)");
+            throw new DataAccessException("Error: data access error (HashMap)");
         }
     }
 
@@ -32,7 +32,7 @@ public class MemoryAuthDAO implements AuthDAO{
         try {
             return authDataHashMap.get(authToken);
         } catch (Exception e) {
-            throw new DataAccessException("Error: database access error (HashMap)");
+            throw new DataAccessException("Error: data access error (HashMap)");
         }
     }
 
@@ -41,7 +41,7 @@ public class MemoryAuthDAO implements AuthDAO{
         try {
             authDataHashMap.remove(authToken);
         } catch (Exception e) {
-            throw new DataAccessException("Error: database access error (HashMap)");
+            throw new DataAccessException("Error: data access error (HashMap)");
         }
     }
 }

@@ -4,7 +4,6 @@ import chess.ChessGame;
 import datamodel.GameDataTruncated;
 import model.GameData;
 
-import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
@@ -18,7 +17,7 @@ public class MemoryGameDAO implements GameDAO{
         try {
             gameDataTreeMap.clear();
         } catch (Exception e) {
-            throw new DataAccessException("Error: database access error (TreeMap)", e);
+            throw new DataAccessException("Error: data access error (TreeMap)", e);
         }
     }
 
@@ -34,7 +33,7 @@ public class MemoryGameDAO implements GameDAO{
             gameDataTreeMap.put(gameID, new GameData(gameID, null, null, gameName, new ChessGame()));
             return gameID;
         } catch (Exception e) {
-            throw new DataAccessException("Error: database access error (TreeMap)", e);
+            throw new DataAccessException("Error: data access error (TreeMap)", e);
         }
     }
 
@@ -43,7 +42,7 @@ public class MemoryGameDAO implements GameDAO{
         try {
             return gameDataTreeMap.get(gameID);
         } catch (Exception e) {
-            throw new DataAccessException("Error: database access error (TreeMap)", e);
+            throw new DataAccessException("Error: data access error (TreeMap)", e);
         }
     }
 
@@ -64,7 +63,7 @@ public class MemoryGameDAO implements GameDAO{
             }
             gameDataTreeMap.put(gameID, newGameData);
         } catch (Exception e) {
-            throw new DataAccessException("Error: database access error (TreeMap)", e);
+            throw new DataAccessException("Error: data access error (TreeMap)", e);
         }
     }
 
@@ -80,7 +79,7 @@ public class MemoryGameDAO implements GameDAO{
             return filtered;
 
         } catch (Exception e) {
-            throw new DataAccessException("Error: database access error (TreeMap)");
+            throw new DataAccessException("Error: data access error (TreeMap)");
         }
     }
 }
