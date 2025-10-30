@@ -3,6 +3,7 @@ package service;
 import dataaccess.*;
 import datamodel.*;
 import model.*;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.UUID;
 
@@ -28,22 +29,24 @@ public class UserService {
     public RegisterResult register(RegisterRequest registerRequest) throws BadRequestException, AlreadyTakenException, DataAccessException {
 
         String username = registerRequest.username();
-        String password = registerRequest.password();
+        String clearTextPassword = registerRequest.password();
         String email = registerRequest.email();
 
         // Check if there is a Bad Request (Checks for null, empty, and correct email syntax)
-        if (username == null || password == null || email == null ||
-            username.isEmpty() || password.isEmpty() ||
+        if (username == null || clearTextPassword == null || email == null ||
+            username.isEmpty() || clearTextPassword.isEmpty() ||
             !email.contains(".")) {
             throw new BadRequestException("Error: bad request");
         }
+
+        String hashedPassword = BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
 
         try {
             // See if the user is already in the database
             if (userDAO.getUser(username) != null) {
                 throw new AlreadyTakenException("Error: already taken");
             } else {
-                UserData userData = new UserData(username, password, email);
+                UserData userData = new UserData(username, hashedPassword, email);
                 userDAO.createUser(userData);
             }
 
@@ -62,22 +65,23 @@ public class UserService {
     public LoginResult login(LoginRequest loginRequest) throws BadRequestException, UnauthorizedException, DataAccessException {
 
         String username = loginRequest.username();
-        String password = loginRequest.password();
+        String clearTextPassword = loginRequest.password();
 
         // Check if there is a Bad Request (Checks for null, empty)
-        if (username == null || password == null ||
-            username.isEmpty() || password.isEmpty()) {
+        if (username == null || clearTextPassword == null ||
+            username.isEmpty() || clearTextPassword.isEmpty()) {
             throw new BadRequestException("Error: bad request");
         }
 
         try {
             // See if the user is in the database
             UserData userData = userDAO.getUser(username);
+
             if (userData == null) {
                 throw new UnauthorizedException("Error: no user found");
             } else {
-                // Check for correct password
-                if (!password.equals(userData.password())) {
+                // Check for correct password (hashed with BCrypt)
+                if (!BCrypt.checkpw(clearTextPassword, userData.password())) {
                     throw new UnauthorizedException("Error: unauthorized");
                 } else {
                     // Create Auth Data
