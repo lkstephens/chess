@@ -21,7 +21,7 @@ public class UserService {
             userDAO.clear();
             authDAO.clear();
         } catch (DataAccessException e) {
-            throw new DataAccessException("Error: database access error (HashMap)", e);
+            throw new DataAccessException("Error: database access error", e);
         }
     }
 
@@ -55,7 +55,7 @@ public class UserService {
             return new RegisterResult(username, authToken);
 
         } catch (DataAccessException e) {
-            throw new DataAccessException("Error: database access error (HashMap)", e);
+            throw new DataAccessException("Error: database access error", e);
         }
     }
 
@@ -89,7 +89,7 @@ public class UserService {
             }
 
         } catch (DataAccessException e) {
-            throw new DataAccessException("Error: database access error (HashMap)", e);
+            throw new DataAccessException("Error: database access error", e);
         }
 
     }
@@ -106,7 +106,7 @@ public class UserService {
             }
 
         } catch (DataAccessException e) {
-            throw new DataAccessException("Error: database access error (HashMap)", e);
+            throw new DataAccessException("Error: database access error", e);
         }
     }
 

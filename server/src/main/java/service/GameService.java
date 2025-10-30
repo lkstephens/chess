@@ -25,7 +25,7 @@ public class GameService {
         try {
             gameDAO.clear();
         } catch (DataAccessException e) {
-            throw new DataAccessException("Error: database access error (HashMap)");
+            throw new DataAccessException("Error: database access error");
         }
     }
 
@@ -39,7 +39,7 @@ public class GameService {
                 return new ListGamesResult(gameDAO.listGames());
             }
         } catch (DataAccessException e) {
-            throw new DataAccessException("Error: database access error (TreeMap)", e);
+            throw new DataAccessException("Error: database access error", e);
         }
     }
 
@@ -61,12 +61,15 @@ public class GameService {
             } else {
                 int gameID = gameDAO.createGame(gameName);
 
-                return new CreateGameResult(gameID);
-
+                if (gameID < 1) {
+                    throw new DataAccessException("Error: game ID not properly assigned");
+                } else {
+                    return new CreateGameResult(gameID);
+                }
             }
 
         } catch (DataAccessException e) {
-            throw new DataAccessException("Error: database access error (TreeMap)", e);
+            throw new DataAccessException("Error: database access error", e);
         }
     }
 
@@ -105,7 +108,7 @@ public class GameService {
 
             }
         } catch (DataAccessException e) {
-            throw new DataAccessException("Error: database access error (TreeMap)", e);
+            throw new DataAccessException("Error: database access error", e);
         }
     }
 }

@@ -24,9 +24,9 @@ public class Server {
         try {
             userDAO = new SQLUserDAO();
             authDAO = new SQLAuthDAO();
-            //gameDAO = new MemoryGameDAO();
+            gameDAO = new SQLGameDAO();
         } catch (DataAccessException e) {
-            System.err.print("Server could not connect to database\n\n");
+            System.err.print("\nError: Server could not connect to database\n");
         }
 
         userService = new UserService(userDAO, authDAO);
