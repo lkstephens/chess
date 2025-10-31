@@ -17,8 +17,13 @@ public class UserDAOTests {
         }
     }
 
+    @BeforeEach
+    public void clearDataBefore() throws DataAccessException {
+        userDAO.clear();
+    }
+
     @AfterEach
-    public void clearUserData() throws DataAccessException {
+    public void clearDataAfter() throws DataAccessException {
         userDAO.clear();
     }
 
@@ -60,13 +65,14 @@ public class UserDAOTests {
     }
 
     @Test
-    void getUserExists() throws DataAccessException {
+    void getUserSuccess() throws DataAccessException {
 
         var user = new UserData("username","password","email@email.com");
         userDAO.createUser(user);
 
         UserData userData = assertDoesNotThrow(() -> userDAO.getUser(user.username()));
 
+        assertNotNull(userData);
         assertEquals(user.username(), userData.username());
         assertEquals(user.password(), userData.password());
         assertEquals(user.email(), userData.email());
@@ -74,7 +80,7 @@ public class UserDAOTests {
     }
 
     @Test
-    void getUserDNE() throws DataAccessException {
+    void getUserFailure() throws DataAccessException {
 
         var user = new UserData("username", "password", "email@email.com");
         userDAO.createUser(user);

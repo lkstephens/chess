@@ -18,8 +18,13 @@ public class AuthDAOTests {
         }
     }
 
+    @BeforeEach
+    public void clearDataBefore() throws DataAccessException {
+        authDAO.clear();
+    }
+
     @AfterEach
-    public void clearAuthData() throws DataAccessException {
+    public void clearDataAfter() throws DataAccessException {
         authDAO.clear();
     }
 
@@ -62,20 +67,21 @@ public class AuthDAOTests {
     }
 
     @Test
-    void getAuthExists() throws DataAccessException {
+    void getAuthSuccess() throws DataAccessException {
 
         var auth = new AuthData("token", "username");
         authDAO.createAuth(auth);
 
         AuthData authData = assertDoesNotThrow(() -> authDAO.getAuth(auth.authToken()));
 
+        assertNotNull(authData);
         assertEquals(auth.authToken(), authData.authToken());
         assertEquals(auth.username(), authData.username());
 
     }
 
     @Test
-    void getAuthDNE() throws DataAccessException {
+    void getAuthFailure() throws DataAccessException {
 
         var auth = new AuthData("token", "username");
         authDAO.createAuth(auth);
@@ -99,7 +105,7 @@ public class AuthDAOTests {
     }
 
     @Test
-    void deleteAuthFail() throws DataAccessException {
+    void deleteAuthFailure() throws DataAccessException {
 
         var auth = new AuthData("token", "username");
         authDAO.createAuth(auth);
