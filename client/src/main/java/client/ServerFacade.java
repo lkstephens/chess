@@ -29,19 +29,23 @@ public class ServerFacade {
     }
 
     public RegisterResult register(RegisterRequest registerRequest) throws Exception {
-        var request = buildRequest("POST", "/user", registerRequest);
+        var request = buildRequest("POST", "/user", registerRequest, null);
         var response = sendRequest(request);
         return handleResponse(response, RegisterResult.class);
     }
 
-//    public LoginResult login(LoginRequest request) {
-//
-//    }
-//
-//    public void logout(String authToken) {
-//
-//    }
-//
+    public LoginResult login(LoginRequest loginRequest) throws Exception {
+        var request = buildRequest("POST", "/session", loginRequest, null);
+        var response = sendRequest(request);
+        return handleResponse(response, LoginResult.class);
+    }
+
+    public void logout(String authToken) throws Exception {
+        var request = buildRequest("DELETE", "/session", null, authToken);
+        var response = sendRequest(request);
+        handleResponse(response, null);
+    }
+
 //    public ListGamesResult listGames(String authToken) {
 //
 //    }
@@ -54,12 +58,15 @@ public class ServerFacade {
 //
 //    }
 //
-    private HttpRequest buildRequest(String method, String path, Object body) {
+    private HttpRequest buildRequest(String method, String path, Object body, String authToken) {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))
                 .method(method, makeRequestBody(body));
         if (body != null) {
             request.setHeader("Content-Type", "application/json");
+        }
+        if (authToken != null) {
+            request.setHeader("authorization", authToken);
         }
         return request.build();
     }
@@ -104,7 +111,6 @@ public class ServerFacade {
                     ClientErrorResponse errResponse = serializer.fromJson(body, ClientErrorResponse.class);
                     throw new ClientAlreadyTakenException((errResponse.message()));
                 } else if (status >= 500) {
-                    //ClientErrorResponse errResponse = serializer.fromJson(body, ClientErrorResponse.class);
                     throw new ClientServerException("Internal Server Error");
                 }
             }

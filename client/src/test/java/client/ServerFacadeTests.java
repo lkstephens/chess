@@ -1,5 +1,6 @@
 package client;
 
+import datamodel.LoginRequest;
 import datamodel.RegisterRequest;
 import datamodel.RegisterResult;
 import org.junit.jupiter.api.*;
@@ -44,6 +45,28 @@ public class ServerFacadeTests {
     public void registerFailure() {
         RegisterRequest registerRequest = new RegisterRequest(null, "pass", "email@email.com");
         assertThrows(ClientBadRequestException.class, () -> facade.register(registerRequest));
+    }
+
+    @Test
+    public void loginSuccess() throws Exception {
+        RegisterRequest registerRequest = new RegisterRequest("user", "pass", "email@email.com");
+        RegisterResult registerResult = facade.register(registerRequest);
+        facade.logout(registerResult.authToken());
+        LoginRequest loginRequest = new LoginRequest("user", "pass");
+        assertDoesNotThrow(() -> facade.login(loginRequest));
+    }
+
+    @Test
+    public void loginFailure() throws Exception{
+        LoginRequest loginRequest = new LoginRequest("user", "pass");
+        // User not registered yet
+        assertThrows(ClientUnauthorizedException.class, () -> facade.login(loginRequest));
+        RegisterRequest registerRequest = new RegisterRequest("user", "pass", "email@email.com");
+        facade.register(registerRequest);
+        assertThrows(ClientBadRequestException.class, () ->
+                facade.login(new LoginRequest("user", null)));
+        assertThrows(ClientUnauthorizedException.class, () ->
+                facade.login(new LoginRequest("user", "bad_pass")));
     }
 
 }
