@@ -103,12 +103,31 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void listGamesSuccess() {
+    public void listGamesSuccess() throws Exception {
+        RegisterResult registerResult = facade.register(new RegisterRequest("user", "pass", "email@email.com"));
+        ListGamesResult listGames = facade.listGames(registerResult.authToken());
+        assertTrue(listGames.games().isEmpty());
+        // Add 3 games
+        facade.createGame(registerResult.authToken(), new CreateGameRequest("game1"));
+        facade.createGame(registerResult.authToken(), new CreateGameRequest("game2"));
+        facade.createGame(registerResult.authToken(), new CreateGameRequest("game3"));
 
+        listGames = facade.listGames(registerResult.authToken());
+
+        assertEquals(3, listGames.games().size());
+        assertEquals(1, listGames.games().getFirst().gameID());
+        assertEquals(2, listGames.games().get(1).gameID());
+        assertEquals(3, listGames.games().get(2).gameID());
     }
 
     @Test
-    public void createGame() throws Exception {
+    public void listGamesFailure() throws Exception {
+        facade.register(new RegisterRequest("user", "pass", "email@email.com"));
+        assertThrows(ClientUnauthorizedException.class, () -> facade.listGames("bad_auth"));
+    }
+
+    @Test
+    public void createGameSuccess() throws Exception {
         RegisterRequest registerRequest = new RegisterRequest("user", "pass", "email@email.com");
         RegisterResult registerResult = facade.register(registerRequest);
         CreateGameRequest createGameRequest = new CreateGameRequest("game"); // gameID = 1
@@ -116,5 +135,17 @@ public class ServerFacadeTests {
         assertEquals(1, createGameResult.gameID());
 
         assertDoesNotThrow(() -> facade.createGame(registerResult.authToken(), createGameRequest));
+    }
+
+    @Test
+    public void createGameFailure() throws Exception {
+        RegisterRequest registerRequest = new RegisterRequest("user", "pass", "email@email.com");
+        RegisterResult registerResult = facade.register(registerRequest);
+        assertThrows(ClientBadRequestException.class,
+                () -> facade.createGame(registerResult.authToken(), new CreateGameRequest("")));
+        assertThrows(ClientBadRequestException.class,
+                () -> facade.createGame(registerResult.authToken(), new CreateGameRequest(null)));
+        assertThrows(ClientUnauthorizedException.class,
+                () -> facade.createGame("bad_auth", new CreateGameRequest("game")));
     }
 }
