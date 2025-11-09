@@ -12,15 +12,15 @@ import java.net.http.HttpResponse;
 public class ServerFacade {
 
     private final HttpClient client = HttpClient.newHttpClient();
-    private final String serverUrl;
+    private final String serverURL;
 
     public ServerFacade(String url) {
-        serverUrl = url;
+        serverURL = url;
     }
 
     public void clear() throws Exception {
         var request = HttpRequest.newBuilder()
-                .uri(URI.create(serverUrl + "/db"))
+                .uri(URI.create(serverURL + "/db"))
                 .method("DELETE", HttpRequest.BodyPublishers.noBody())
                 .build();
         client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -64,7 +64,7 @@ public class ServerFacade {
 
     private HttpRequest buildRequest(String method, String path, Object body, String authToken) {
         var request = HttpRequest.newBuilder()
-                .uri(URI.create(serverUrl + path))
+                .uri(URI.create(serverURL + path))
                 .method(method, makeRequestBody(body));
         if (body != null) {
             request.setHeader("Content-Type", "application/json");
