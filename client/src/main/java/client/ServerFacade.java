@@ -2,7 +2,6 @@ package client;
 
 import com.google.gson.Gson;
 import datamodel.*;
-import service.BadRequestException;
 
 import java.io.IOException;
 import java.net.URI;
@@ -46,14 +45,18 @@ public class ServerFacade {
         handleResponse(response, null);
     }
 
-//    public ListGamesResult listGames(String authToken) {
-//
-//    }
-//
-//    public CreateGameResult createGame(CreateGameRequest request) {
-//
-//    }
-//
+    public ListGamesResult listGames(String authToken) throws Exception {
+        var request = buildRequest("GET", "/game", null, authToken);
+        var response = sendRequest(request);
+        return handleResponse(response, ListGamesResult.class);
+    }
+
+    public CreateGameResult createGame(String authToken, CreateGameRequest createGameRequest) throws Exception {
+        var request = buildRequest("POST", "/game", createGameRequest, authToken);
+        var response = sendRequest(request);
+        return handleResponse(response, CreateGameResult.class);
+    }
+
 //    public void joinGame(String authToken, JoinGameRequest request) {
 //
 //    }

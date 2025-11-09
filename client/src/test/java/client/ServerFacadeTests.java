@@ -1,8 +1,6 @@
 package client;
 
-import datamodel.LoginRequest;
-import datamodel.RegisterRequest;
-import datamodel.RegisterResult;
+import datamodel.*;
 import org.junit.jupiter.api.*;
 import server.Server;
 
@@ -31,6 +29,27 @@ public class ServerFacadeTests {
         facade.clear();
     }
 
+
+    @Test
+    public void clearSuccess() throws Exception {
+        // Add data to all three tables
+        RegisterRequest registerRequest = new RegisterRequest("user", "pass", "email@email.com");
+        RegisterResult registerResult = facade.register(registerRequest);
+        facade.createGame(registerResult.authToken(), new CreateGameRequest("game"));
+        ListGamesResult listGamesResult = facade.listGames(registerResult.authToken());
+        assertEquals(1, listGamesResult.games().size());
+
+        facade.clear();
+        // Can register again
+        registerResult = assertDoesNotThrow(() -> facade.register(registerRequest));
+        listGamesResult = facade.listGames(registerResult.authToken());
+        // No games listed
+        assertTrue(listGamesResult.games().isEmpty());
+
+        facade.clear();
+        // Can clear again
+        assertDoesNotThrow(() -> facade.clear());
+    }
 
     @Test
     public void registerSuccess() throws Exception {
@@ -69,4 +88,33 @@ public class ServerFacadeTests {
                 facade.login(new LoginRequest("user", "bad_pass")));
     }
 
+    @Test
+    public void logoutSuccess() throws Exception {
+        RegisterRequest registerRequest = new RegisterRequest("user", "pass", "email@email.com");
+        RegisterResult registerResult = facade.register(registerRequest);
+        assertDoesNotThrow(() -> facade.logout(registerResult.authToken()));
+    }
+
+    @Test
+    public void logoutFailure() throws Exception {
+        RegisterRequest registerRequest = new RegisterRequest("user", "pass", "email@email.com");
+        RegisterResult registerResult = facade.register(registerRequest);
+        assertThrows(ClientUnauthorizedException.class, () -> facade.logout(registerResult.authToken() + "bad_token"));
+    }
+
+    @Test
+    public void listGamesSuccess() {
+
+    }
+
+    @Test
+    public void createGame() throws Exception {
+        RegisterRequest registerRequest = new RegisterRequest("user", "pass", "email@email.com");
+        RegisterResult registerResult = facade.register(registerRequest);
+        CreateGameRequest createGameRequest = new CreateGameRequest("game"); // gameID = 1
+        CreateGameResult createGameResult = facade.createGame(registerResult.authToken(), createGameRequest);
+        assertEquals(1, createGameResult.gameID());
+
+        assertDoesNotThrow(() -> facade.createGame(registerResult.authToken(), createGameRequest));
+    }
 }
