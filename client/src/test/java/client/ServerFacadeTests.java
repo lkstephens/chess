@@ -148,4 +148,41 @@ public class ServerFacadeTests {
         assertThrows(ClientUnauthorizedException.class,
                 () -> facade.createGame("bad_auth", new CreateGameRequest("game")));
     }
+
+    @Test
+    public void joinGameSuccess() throws Exception {
+        // Register User1
+        RegisterResult user1Auth = facade.register(new RegisterRequest("user1", "pass1", "user1@email.com"));
+        // Create 2 games
+        facade.createGame(user1Auth.authToken(), new CreateGameRequest("Game_A"));
+        facade.createGame(user1Auth.authToken(), new CreateGameRequest("Game_B"));
+        // User1 joins Game_A as both WHITE and BLACK
+        facade.joinGame(user1Auth.authToken(), new JoinGameRequest("WHITE", 1));
+        assertDoesNotThrow(
+                () -> facade.joinGame(user1Auth.authToken(), new JoinGameRequest("BLACK", 1)));
+        // User1 joins Game_B as WHITE
+        facade.joinGame(user1Auth.authToken(), new JoinGameRequest("WHITE", 2));
+        // Register User2
+        RegisterResult user2Auth = facade.register(new RegisterRequest("user2", "pass2", "user2@email.com"));
+        // User2 joins Game_B as BLACK
+        facade.joinGame(user2Auth.authToken(), new JoinGameRequest("BLACK", 2));
+
+        ListGamesResult listGames = facade.listGames(user2Auth.authToken());
+
+        // Make sure User1 and User2 are in the correct spots
+        assertEquals(user1Auth.username(), listGames.games().getFirst().whiteUsername());
+        assertEquals(user1Auth.username(), listGames.games().getFirst().blackUsername());
+        assertEquals(user1Auth.username(), listGames.games().get(1).whiteUsername());
+        assertEquals(user2Auth.username(), listGames.games().get(1).blackUsername());
+    }
+
+    @Test
+    public void joinGameFailure() throws Exception {
+        RegisterResult registerResult = facade.register(new RegisterRequest("user", "pass", "user@email.com"));
+        facade.createGame(registerResult.authToken(), new CreateGameRequest("game"));
+        assertThrows(ClientBadRequestException.class,
+                () -> facade.joinGame(registerResult.authToken(), new JoinGameRequest(null, 1)));
+        assertThrows(ClientBadRequestException.class,
+                () -> facade.joinGame(registerResult.authToken(), new JoinGameRequest("WHITE", 2)));
+    }
 }

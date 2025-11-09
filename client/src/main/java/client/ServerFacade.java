@@ -56,10 +56,12 @@ public class ServerFacade {
         return handleResponse(response, CreateGameResult.class);
     }
 
-//    public void joinGame(String authToken, JoinGameRequest request) {
-//
-//    }
-//
+    public void joinGame(String authToken, JoinGameRequest joinGameRequest) throws Exception {
+        var request = buildRequest("PUT", "/game", joinGameRequest, authToken);
+        var response = sendRequest(request);
+        handleResponse(response, null);
+    }
+
     private HttpRequest buildRequest(String method, String path, Object body, String authToken) {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))
@@ -91,7 +93,7 @@ public class ServerFacade {
 
     private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass)
             throws ClientBadRequestException, ClientUnauthorizedException, ClientAlreadyTakenException,
-                   ClientUnknownException, ClientServerException {
+                   ClientServerException, ClientUnknownException {
 
         var status = response.statusCode();
 
@@ -120,17 +122,17 @@ public class ServerFacade {
             throw new ClientUnknownException("other failure: " + status);
         }
 
-        // Success
+        // Successful Path
         if (responseClass != null) {
             return new Gson().fromJson(response.body(), responseClass);
         }
 
+        // Returning Empty Json
         return null;
     }
 
     private boolean isSuccessful(int status) {
         return status / 100 == 2;
     }
-
 
 }
