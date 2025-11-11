@@ -1,7 +1,10 @@
 package ui;
 
 
+import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import client.*;
 import datamodel.CreateGameRequest;
 import datamodel.JoinGameRequest;
@@ -168,13 +171,16 @@ public class PostLoginClient implements ChessClient {
             String playerColor = params[1].toUpperCase();
             JoinGameRequest request = new JoinGameRequest(playerColor, gameID);
 
+            ChessGame game = chessGames.get(gameNum-1);
+            ChessBoard board = game.getBoard();
+
             try {
                 server.joinGame(authToken, request);
 
                 if (playerColor.equals("WHITE")) {
-                    System.out.print(drawBoardWhite());
+                    System.out.print(drawBoardWhite(board));
                 } else {
-                    System.out.print(drawBoardWhite());
+                    System.out.print(drawBoardWhite(board));
                 }
 
                 return SET_TEXT_COLOR_GREEN + "Successfully joined game as " + playerColor + "\n";
@@ -220,60 +226,116 @@ public class PostLoginClient implements ChessClient {
         }
     }
 
-    public String drawBoardWhite() {
-        return
-                SET_TEXT_COLOR_BLACK + SET_BG_COLOR_TAN + BLACK_ROOK + RESET_BG_COLOR +
-                SET_BG_COLOR_BROWN + BLACK_KNIGHT + RESET_BG_COLOR +
-                SET_BG_COLOR_TAN + BLACK_BISHOP + RESET_BG_COLOR +
-                SET_BG_COLOR_BROWN + BLACK_QUEEN + RESET_BG_COLOR +
-                SET_BG_COLOR_TAN + BLACK_KING + RESET_BG_COLOR +
-                SET_BG_COLOR_BROWN + BLACK_BISHOP + RESET_BG_COLOR +
-                SET_BG_COLOR_TAN + BLACK_KNIGHT + RESET_BG_COLOR +
-                SET_BG_COLOR_BROWN + BLACK_ROOK + RESET_BG_COLOR + "\n" +
+    public String drawBoardWhite(ChessBoard board) {
 
-                SET_BG_COLOR_BROWN + BLACK_PAWN + RESET_BG_COLOR +
-                SET_BG_COLOR_TAN + BLACK_PAWN + RESET_BG_COLOR +
-                SET_BG_COLOR_BROWN + BLACK_PAWN + RESET_BG_COLOR +
-                SET_BG_COLOR_TAN + BLACK_PAWN + RESET_BG_COLOR +
-                SET_BG_COLOR_BROWN + BLACK_PAWN + RESET_BG_COLOR +
-                SET_BG_COLOR_TAN + BLACK_PAWN + RESET_BG_COLOR +
-                SET_BG_COLOR_BROWN + BLACK_PAWN + RESET_BG_COLOR +
-                SET_BG_COLOR_TAN + BLACK_PAWN + RESET_BG_COLOR + "\n" +
+        StringBuilder out = new StringBuilder();
+        // i: rows, j: cols
+        for (int i = 9; i >= 0; i--) {
+            for (int j = 0; j <= 9; j++) {
 
-                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR + "\n" +
+                if (i == 0 || i == 9) {
+                    out.append(RESET_BG_COLOR + RESET_TEXT_COLOR +
+                               SET_TEXT_COLOR_BLUE + SET_BG_COLOR_LIGHT_GREY +
+                               EMPTY + " a " + " b " + " c " + " d " + " e " + " f " + " g " + " h " + EMPTY + "\n");
+                    break;
 
-                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR + "\n" +
+                } else {
 
-                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR + "\n" +
+                    if (j == 0 || j == 9) {
+                        out.append(RESET_BG_COLOR + RESET_TEXT_COLOR +
+                                SET_TEXT_COLOR_BLUE + SET_BG_COLOR_LIGHT_GREY);
+                        out.append(" ");
+                        out.append(8 - i + 1);
+                        out.append(" ");
+                    } else {
+                        ChessPiece piece = board.getPiece(new ChessPosition(i, j));
+                        ChessGame.TeamColor color = piece.getTeamColor();
+                        ChessPiece.PieceType type = piece.getPieceType();
+                    }
+                    if (j == 9) {
+                        out.append("\n");
+                    }
+                }
+            }
+        }
 
-                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
-                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR + "\n";
+//                SET_BG_COLOR_BROWN + BLACK_KNIGHT +
+//                SET_BG_COLOR_TAN + BLACK_BISHOP +
+//                SET_BG_COLOR_BROWN + BLACK_QUEEN +
+//                SET_BG_COLOR_TAN + BLACK_KING +
+//                SET_BG_COLOR_BROWN + BLACK_BISHOP +
+//                SET_BG_COLOR_TAN + BLACK_KNIGHT +
+//                SET_BG_COLOR_BROWN + BLACK_ROOK +
+//                SET_BG_COLOR_LIGHT_GREY + " 8 " + RESET_BG_COLOR + "\n" +
+//
+//                SET_TEXT_COLOR_BLUE + SET_BG_COLOR_LIGHT_GREY + " 7 " + SET_TEXT_COLOR_BLACK +
+//                SET_BG_COLOR_BROWN + BLACK_PAWN +
+//                SET_BG_COLOR_TAN + BLACK_PAWN +
+//                SET_BG_COLOR_BROWN + BLACK_PAWN +
+//                SET_BG_COLOR_TAN + BLACK_PAWN +
+//                SET_BG_COLOR_BROWN + BLACK_PAWN +
+//                SET_BG_COLOR_TAN + BLACK_PAWN +
+//                SET_BG_COLOR_BROWN + BLACK_PAWN +
+//                SET_BG_COLOR_TAN + BLACK_PAWN + RESET_BG_COLOR + " 7 " + RESET_BG_COLOR + "\n" +
+//
+//                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR + "\n" +
+//
+//                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR + "\n" +
+//
+//                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR + "\n" +
+//
+//                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+//                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR + "\n" +
+//
+//                SET_TEXT_COLOR_WHITE + SET_BG_COLOR_TAN + WHITE_PAWN + RESET_BG_COLOR +
+//                SET_BG_COLOR_BROWN + WHITE_PAWN + RESET_BG_COLOR +
+//                SET_BG_COLOR_TAN + WHITE_PAWN + RESET_BG_COLOR +
+//                SET_BG_COLOR_BROWN + WHITE_PAWN + RESET_BG_COLOR +
+//                SET_BG_COLOR_TAN + WHITE_PAWN + RESET_BG_COLOR +
+//                SET_BG_COLOR_BROWN + WHITE_PAWN + RESET_BG_COLOR +
+//                SET_BG_COLOR_TAN + WHITE_PAWN + RESET_BG_COLOR +
+//                SET_BG_COLOR_BROWN + WHITE_PAWN + RESET_BG_COLOR + "\n" +
+//
+//                SET_BG_COLOR_BROWN + WHITE_ROOK + RESET_BG_COLOR +
+//                SET_BG_COLOR_TAN + WHITE_KNIGHT + RESET_BG_COLOR +
+//                SET_BG_COLOR_BROWN + WHITE_BISHOP + RESET_BG_COLOR +
+//                SET_BG_COLOR_TAN + WHITE_QUEEN + RESET_BG_COLOR +
+//                SET_BG_COLOR_BROWN + WHITE_KING + RESET_BG_COLOR +
+//                SET_BG_COLOR_TAN + WHITE_BISHOP + RESET_BG_COLOR +
+//                SET_BG_COLOR_BROWN + WHITE_KNIGHT + RESET_BG_COLOR +
+//                SET_BG_COLOR_TAN + WHITE_ROOK + RESET_BG_COLOR + "\n";
+
+        return "CHANGEME";
     }
+
+//    public String getPieceUnicode(ChessPiece piece) {
+//
+//    }
 }
