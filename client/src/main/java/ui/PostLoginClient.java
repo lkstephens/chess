@@ -1,9 +1,9 @@
 package ui;
 
 
+import chess.ChessGame;
 import client.*;
 import datamodel.CreateGameRequest;
-import datamodel.GameDataTruncated;
 import datamodel.JoinGameRequest;
 import datamodel.ListGamesResult;
 
@@ -18,6 +18,7 @@ public class PostLoginClient implements ChessClient {
     private final ServerFacade server;
     private String authToken;
     private ArrayList<Integer> gameIDs = new ArrayList<>();
+    private ArrayList<ChessGame> chessGames = new ArrayList<>();
 
     public PostLoginClient(ServerFacade server, String authToken) {
         this.server = server;
@@ -131,6 +132,7 @@ public class PostLoginClient implements ChessClient {
             for (int i = 0; i < games.size(); i++) {
                 var currGame = games.get(i);
                 gameIDs.add(currGame.gameID());
+                chessGames.add(currGame.game());
 
                 var whiteUserPrint = (currGame.whiteUsername() == null) ? "" : currGame.whiteUsername();
                 var blackUserPrint = (currGame.blackUsername() == null) ? "" : currGame.blackUsername();
@@ -169,6 +171,8 @@ public class PostLoginClient implements ChessClient {
                 server.joinGame(authToken, request);
                 return SET_TEXT_COLOR_GREEN + "Successfully joined game as " + playerColor + "\n";
 
+                // Print board
+
             } catch (ClientBadRequestException ex) {
                 return SET_TEXT_COLOR_RED + "Make sure to enter a valid game number and player color.";
             } catch (ClientUnauthorizedException ex) {
@@ -185,6 +189,14 @@ public class PostLoginClient implements ChessClient {
         }
         return SET_TEXT_COLOR_RED + "Expected: <game#> <WHITE|BLACK>";
     }
+
+//    public String observeGame(String...params) {
+//        if (params.length == 1) {
+//            int gameNum = Integer.parseInt(params[0]);
+//        } else {
+//            return SET_TEXT_COLOR_RED + "Expected: <game#>";
+//        }
+//    }
 
     public String logout() {
         try {

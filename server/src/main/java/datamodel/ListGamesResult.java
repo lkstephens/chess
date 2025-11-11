@@ -1,6 +1,8 @@
 package datamodel;
 
+import model.GameData;
+
 import java.util.List;
 
-public record ListGamesResult(List<GameDataTruncated> games) {
+public record ListGamesResult(List<GameData> games) {
 }

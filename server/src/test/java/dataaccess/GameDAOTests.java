@@ -1,6 +1,6 @@
 package dataaccess;
 
-import datamodel.GameDataTruncated;
+import model.GameData;
 
 import java.util.List;
 
@@ -128,7 +128,7 @@ public class GameDAOTests {
         gameDAO.createGame("game2");
         gameDAO.createGame("game3");
 
-        List<GameDataTruncated> listGames = gameDAO.listGames();
+        List<GameData> listGames = gameDAO.listGames();
         assertEquals(3, listGames.size());
         assertEquals("game1", listGames.getFirst().gameName());
         assertEquals("game2", listGames.get(1).gameName());
@@ -139,7 +139,7 @@ public class GameDAOTests {
     @Test
     void listGamesEmpty() throws DataAccessException {
 
-        List<GameDataTruncated> listGames = gameDAO.listGames();
+        List<GameData> listGames = gameDAO.listGames();
         assertTrue(listGames.isEmpty());
 
     }

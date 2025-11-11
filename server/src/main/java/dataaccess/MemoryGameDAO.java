@@ -1,7 +1,6 @@
 package dataaccess;
 
 import chess.ChessGame;
-import datamodel.GameDataTruncated;
 import model.GameData;
 
 import java.util.ArrayList;
@@ -68,15 +67,16 @@ public class MemoryGameDAO implements GameDAO{
     }
 
     @Override
-    public List<GameDataTruncated> listGames() throws DataAccessException {
+    public List<GameData> listGames() throws DataAccessException {
         try {
-            ArrayList<GameData> raw = new ArrayList<>(gameDataTreeMap.values());
-            ArrayList<GameDataTruncated> filtered = new ArrayList<>();
-            for (GameData data : raw) {
-                filtered.add(new GameDataTruncated(data.gameID(), data.whiteUsername(),
-                        data.blackUsername(), data.gameName()));
-            }
-            return filtered;
+//            ArrayList<GameData> raw = new ArrayList<>(gameDataTreeMap.values());
+//            ArrayList<GameDataTruncated> filtered = new ArrayList<>();
+//            for (GameData data : raw) {
+//                filtered.add(new GameDataTruncated(data.gameID(), data.whiteUsername(),
+//                        data.blackUsername(), data.gameName()));
+//            }
+//            return filtered;
+            return new ArrayList<>(gameDataTreeMap.values());
 
         } catch (Exception e) {
             throw new DataAccessException("Error: data access error (TreeMap)");

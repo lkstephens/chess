@@ -3,7 +3,6 @@ package dataaccess;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
-import datamodel.GameDataTruncated;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -102,22 +101,22 @@ public class SQLGameDAO implements GameDAO{
     }
 
     @Override
-    public List<GameDataTruncated> listGames() throws DataAccessException {
+    public List<GameData> listGames() throws DataAccessException {
 
-        ArrayList<GameDataTruncated> result = new ArrayList<>();
+        ArrayList<GameData> result = new ArrayList<>();
 
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName FROM game_data";
+            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM game_data";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
-                        result.add(readGameDataTrunc(rs));
+                        result.add(readGameData(rs));
                     }
                     return result;
                 }
             }
         } catch (Exception e) {
-            throw new DataAccessException("Error: unable to retrieve auth data", e);
+            throw new DataAccessException("Error: unable to retrieve game data", e);
         }
     }
 
@@ -132,15 +131,15 @@ public class SQLGameDAO implements GameDAO{
         return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
     }
 
-    private GameDataTruncated readGameDataTrunc(ResultSet rs) throws SQLException {
-
-        var gameID = rs.getInt(1);
-        var whiteUsername = rs.getString("whiteUsername");
-        var blackUsername = rs.getString("blackUsername");
-        var gameName = rs.getString("gameName");
-
-        return new GameDataTruncated(gameID, whiteUsername, blackUsername, gameName);
-    }
+//    private GameDataTruncated readGameDataTrunc(ResultSet rs) throws SQLException {
+//
+//        var gameID = rs.getInt(1);
+//        var whiteUsername = rs.getString("whiteUsername");
+//        var blackUsername = rs.getString("blackUsername");
+//        var gameName = rs.getString("gameName");
+//
+//        return new GameDataTruncated(gameID, whiteUsername, blackUsername, gameName);
+//    }
 
 
 }

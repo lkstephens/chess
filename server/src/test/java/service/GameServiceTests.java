@@ -2,6 +2,7 @@ package service;
 
 import dataaccess.*;
 import datamodel.*;
+import model.GameData;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,7 +35,7 @@ public class GameServiceTests {
         var listGamesResult = gameService.listGames(registerResult.authToken());
 
         assertEquals(3, listGamesResult.games().size());
-        for (GameDataTruncated gameData : listGamesResult.games()) {
+        for (GameData gameData : listGamesResult.games()) {
             assertNull(gameData.whiteUsername());
             assertNull(gameData.blackUsername());
         }
