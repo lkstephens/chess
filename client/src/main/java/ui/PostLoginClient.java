@@ -4,6 +4,7 @@ package ui;
 import client.*;
 import datamodel.CreateGameRequest;
 import datamodel.GameDataTruncated;
+import datamodel.JoinGameRequest;
 import datamodel.ListGamesResult;
 
 import java.util.ArrayList;
@@ -85,7 +86,7 @@ public class PostLoginClient implements ChessClient {
         return switch (cmd) {
             case "create" -> createGame(params);
             case "list" -> listGames();
-            //case "join" -> joinGame(params);
+            case "join" -> joinGame(params);
             //case "observe" -> observeGame(params);
             case "logout" -> logout();
             case "quit" -> "quit";
@@ -120,6 +121,7 @@ public class PostLoginClient implements ChessClient {
     public String listGames() {
         try {
             ListGamesResult listGames = server.listGames(authToken);
+            gameIDs.clear();
             var games = listGames.games();
 
             if (games.isEmpty()) {
@@ -149,6 +151,39 @@ public class PostLoginClient implements ChessClient {
         } catch (Exception ex) {
             return SET_TEXT_COLOR_RED + "Unknown Error. Please try again later.";
         }
+    }
+
+    public String joinGame(String...params) {
+        if (params.length == 2) {
+
+            int gameNum = Integer.parseInt(params[0]);
+            if (gameNum < 1 || gameNum > gameIDs.size()) {
+                return SET_TEXT_COLOR_RED + "Game number does not exist. Try a different number.";
+            }
+
+            int gameID = gameIDs.get(gameNum - 1);
+            String playerColor = params[1].toUpperCase();
+            JoinGameRequest request = new JoinGameRequest(playerColor, gameID);
+
+            try {
+                server.joinGame(authToken, request);
+                return SET_TEXT_COLOR_GREEN + "Successfully joined game as " + playerColor + "\n";
+
+            } catch (ClientBadRequestException ex) {
+                return SET_TEXT_COLOR_RED + "Make sure to enter a valid game number and player color.";
+            } catch (ClientUnauthorizedException ex) {
+                return SET_TEXT_COLOR_RED + "You must sign in before joining a game";
+            } catch (ClientAlreadyTakenException ex) {
+                return SET_TEXT_COLOR_RED + playerColor + " has already been taken.";
+            } catch (ClientServerException ex) {
+                return SET_TEXT_COLOR_RED + "Internal server error. Please try again later.";
+            } catch (ClientNetworkException ex) {
+                return SET_TEXT_COLOR_RED + "Connection Error. Please try again later.";
+            } catch (Exception ex) {
+                return SET_TEXT_COLOR_RED + "Unknown Error. Please try again later.";
+            }
+        }
+        return SET_TEXT_COLOR_RED + "Expected: <game#> <WHITE|BLACK>";
     }
 
     public String logout() {
