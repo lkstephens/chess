@@ -3,7 +3,10 @@ package ui;
 
 import client.*;
 import datamodel.CreateGameRequest;
+import datamodel.GameDataTruncated;
+import datamodel.ListGamesResult;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -13,6 +16,7 @@ public class PostLoginClient implements ChessClient {
 
     private final ServerFacade server;
     private String authToken;
+    private ArrayList<Integer> gameIDs = new ArrayList<>();
 
     public PostLoginClient(ServerFacade server, String authToken) {
         this.server = server;
@@ -80,7 +84,7 @@ public class PostLoginClient implements ChessClient {
 
         return switch (cmd) {
             case "create" -> createGame(params);
-            //case "list" -> listGames();
+            case "list" -> listGames();
             //case "join" -> joinGame(params);
             //case "observe" -> observeGame(params);
             case "logout" -> logout();
@@ -110,6 +114,40 @@ public class PostLoginClient implements ChessClient {
             }
         } else {
             return SET_TEXT_COLOR_RED + "Expected: <gamename>";
+        }
+    }
+
+    public String listGames() {
+        try {
+            ListGamesResult listGames = server.listGames(authToken);
+            var games = listGames.games();
+
+            if (games.isEmpty()) {
+                System.out.println("No existing games. Create a new one!");
+            }
+
+            for (int i = 0; i < games.size(); i++) {
+                var currGame = games.get(i);
+                gameIDs.add(currGame.gameID());
+
+                var whiteUserPrint = (currGame.whiteUsername() == null) ? "" : currGame.whiteUsername();
+                var blackUserPrint = (currGame.blackUsername() == null) ? "" : currGame.blackUsername();
+
+                System.out.print((i+1) + ". Game Name: " + currGame.gameName() + "\t\t"
+                                       + "White: " + whiteUserPrint + "\t\t"
+                                       + "Black: " + blackUserPrint + "\n");
+            }
+
+            return "";
+
+        } catch (ClientUnauthorizedException ex) {
+            return SET_TEXT_COLOR_RED + "You must sign in before retrieving a list of games.";
+        } catch (ClientServerException ex) {
+            return SET_TEXT_COLOR_RED + "Internal server error. Please try again later.";
+        } catch (ClientNetworkException ex) {
+            return SET_TEXT_COLOR_RED + "Connection Error. Please try again later.";
+        } catch (Exception ex) {
+            return SET_TEXT_COLOR_RED + "Unknown Error. Please try again later.";
         }
     }
 
