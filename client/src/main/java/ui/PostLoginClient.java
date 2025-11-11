@@ -7,6 +7,7 @@ import datamodel.CreateGameRequest;
 import datamodel.JoinGameRequest;
 import datamodel.ListGamesResult;
 
+import java.security.cert.TrustAnchor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -169,9 +170,14 @@ public class PostLoginClient implements ChessClient {
 
             try {
                 server.joinGame(authToken, request);
-                return SET_TEXT_COLOR_GREEN + "Successfully joined game as " + playerColor + "\n";
 
-                // Print board
+                if (playerColor.equals("WHITE")) {
+                    System.out.print(drawBoardWhite());
+                } else {
+                    System.out.print(drawBoardWhite());
+                }
+
+                return SET_TEXT_COLOR_GREEN + "Successfully joined game as " + playerColor + "\n";
 
             } catch (ClientBadRequestException ex) {
                 return SET_TEXT_COLOR_RED + "Make sure to enter a valid game number and player color.";
@@ -212,5 +218,62 @@ public class PostLoginClient implements ChessClient {
         } catch (Exception ex) {
             return SET_TEXT_COLOR_RED + "Unknown Error. Please try again later.";
         }
+    }
+
+    public String drawBoardWhite() {
+        return
+                SET_TEXT_COLOR_BLACK + SET_BG_COLOR_TAN + BLACK_ROOK + RESET_BG_COLOR +
+                SET_BG_COLOR_BROWN + BLACK_KNIGHT + RESET_BG_COLOR +
+                SET_BG_COLOR_TAN + BLACK_BISHOP + RESET_BG_COLOR +
+                SET_BG_COLOR_BROWN + BLACK_QUEEN + RESET_BG_COLOR +
+                SET_BG_COLOR_TAN + BLACK_KING + RESET_BG_COLOR +
+                SET_BG_COLOR_BROWN + BLACK_BISHOP + RESET_BG_COLOR +
+                SET_BG_COLOR_TAN + BLACK_KNIGHT + RESET_BG_COLOR +
+                SET_BG_COLOR_BROWN + BLACK_ROOK + RESET_BG_COLOR + "\n" +
+
+                SET_BG_COLOR_BROWN + BLACK_PAWN + RESET_BG_COLOR +
+                SET_BG_COLOR_TAN + BLACK_PAWN + RESET_BG_COLOR +
+                SET_BG_COLOR_BROWN + BLACK_PAWN + RESET_BG_COLOR +
+                SET_BG_COLOR_TAN + BLACK_PAWN + RESET_BG_COLOR +
+                SET_BG_COLOR_BROWN + BLACK_PAWN + RESET_BG_COLOR +
+                SET_BG_COLOR_TAN + BLACK_PAWN + RESET_BG_COLOR +
+                SET_BG_COLOR_BROWN + BLACK_PAWN + RESET_BG_COLOR +
+                SET_BG_COLOR_TAN + BLACK_PAWN + RESET_BG_COLOR + "\n" +
+
+                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR + "\n" +
+
+                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR + "\n" +
+
+                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR + "\n" +
+
+                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_BROWN + EMPTY + RESET_BG_COLOR +
+                SET_BG_COLOR_TAN + EMPTY + RESET_BG_COLOR + "\n";
     }
 }
