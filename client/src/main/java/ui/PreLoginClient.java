@@ -35,12 +35,13 @@ public class PreLoginClient implements ChessClient {
 
                 if (state == LOGGED_IN) {
                     PostLoginClient postLoginClient = new PostLoginClient(server, authToken);
-                    result = eval(postLoginClient.run());
-
+                    String postLoginResult = postLoginClient.run();
                     state = LOGGED_OUT;
-
-                    if (result.equals("logout")) {
-                        System.out.print(help());
+                    if (postLoginResult.equals("quit")) {
+                        result = "quit";
+                    } else {
+                        System.out.println("Successfully logged out.");
+                        System.out.print("\n" + help());
                     }
                 }
 
@@ -50,7 +51,7 @@ public class PreLoginClient implements ChessClient {
             }
         }
         System.out.println();
-        return "\nGoodbye.";
+        return "Goodbye.";
     }
 
     private void printPrompt() {
@@ -97,7 +98,7 @@ public class PreLoginClient implements ChessClient {
                  var result = server.register(request);
                  state = LOGGED_IN;
                  authToken = result.authToken();
-                 return RESET_TEXT_COLOR + "Successfully registered.";
+                 return SET_TEXT_COLOR_GREEN + "Successfully registered.";
 
              } catch (ClientBadRequestException ex) {
                  return SET_TEXT_COLOR_RED + "Username, password, and valid email (email@domain.com) required.";
@@ -125,7 +126,7 @@ public class PreLoginClient implements ChessClient {
                 var result = server.login(request);
                 state = LOGGED_IN;
                 authToken = result.authToken();
-                return RESET_TEXT_COLOR + "Successfully logged in.";
+                return SET_TEXT_COLOR_GREEN + "Successfully logged in.";
 
             } catch (ClientBadRequestException ex) {
                 return SET_TEXT_COLOR_RED + "Username and password required.";

@@ -32,14 +32,12 @@ public class PostLoginClient implements ChessClient {
 
             try {
                 result = eval(line);
-                System.out.print(result);
 
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);
             }
         }
-        System.out.println();
         return result;
     }
 
@@ -48,15 +46,30 @@ public class PostLoginClient implements ChessClient {
     }
 
     public String help() {
-        return """
-               create <GAMENAME> - a game
-               list - games
-               join <game#> [WHITE|BLACK] - a game
-               observe <game#> - a game
-               logout - when you are done
-               quit - playing chess
-               help - with possible commands
-               """;
+        return
+                 SET_TEXT_COLOR_BLUE + "create "
+               + SET_TEXT_COLOR_MAGENTA + "<GAMENAME> "
+               + RESET_TEXT_COLOR + " - a game\n"
+
+               + SET_TEXT_COLOR_BLUE + "list"
+               + RESET_TEXT_COLOR + " - games\n"
+
+               + SET_TEXT_COLOR_BLUE + "join "
+               + SET_TEXT_COLOR_MAGENTA + "<game#> [WHITE|BLACK]"
+               + RESET_TEXT_COLOR + " - a game\n"
+
+               + SET_TEXT_COLOR_BLUE + "observe "
+               + SET_TEXT_COLOR_MAGENTA + "<game#>"
+               + RESET_TEXT_COLOR + " - a game\n"
+
+               + SET_TEXT_COLOR_BLUE + "logout "
+               + RESET_TEXT_COLOR + " - when you are done\n"
+
+               + SET_TEXT_COLOR_BLUE + "quit "
+               + RESET_TEXT_COLOR + " - playing chess\n"
+
+               + SET_TEXT_COLOR_BLUE + "help "
+               + RESET_TEXT_COLOR + " - with possible commands\n";
     }
 
     public String eval(String input) {
@@ -71,7 +84,7 @@ public class PostLoginClient implements ChessClient {
             //case "observe" -> observeGame(params);
             case "logout" -> logout();
             case "quit" -> "quit";
-            default -> SET_TEXT_COLOR_BLUE + help();
+            default -> help();
         };
     }
 
@@ -79,6 +92,7 @@ public class PostLoginClient implements ChessClient {
         try {
             server.logout(authToken);
             return "logout";
+
         } catch (ClientUnauthorizedException ex) {
             return SET_TEXT_COLOR_RED + "Failed to logout";
         } catch (ClientServerException ex) {
