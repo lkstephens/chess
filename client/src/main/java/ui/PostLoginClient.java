@@ -1,10 +1,8 @@
 package ui;
 
 
-import client.ClientNetworkException;
-import client.ClientServerException;
-import client.ClientUnauthorizedException;
-import client.ServerFacade;
+import client.*;
+import datamodel.CreateGameRequest;
 
 import java.util.Arrays;
 import java.util.Scanner;
@@ -32,6 +30,9 @@ public class PostLoginClient implements ChessClient {
 
             try {
                 result = eval(line);
+                if (!result.equals("logout") && !result.equals("quit")) {
+                    System.out.print(result);
+                }
 
             } catch (Throwable e) {
                 var msg = e.toString();
@@ -48,7 +49,7 @@ public class PostLoginClient implements ChessClient {
     public String help() {
         return
                  SET_TEXT_COLOR_BLUE + "create "
-               + SET_TEXT_COLOR_MAGENTA + "<GAMENAME> "
+               + SET_TEXT_COLOR_MAGENTA + "<GAMENAME>"
                + RESET_TEXT_COLOR + " - a game\n"
 
                + SET_TEXT_COLOR_BLUE + "list"
@@ -78,14 +79,38 @@ public class PostLoginClient implements ChessClient {
         String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
 
         return switch (cmd) {
-            //case "create" -> createGame(params);
+            case "create" -> createGame(params);
             //case "list" -> listGames();
             //case "join" -> joinGame(params);
             //case "observe" -> observeGame(params);
             case "logout" -> logout();
             case "quit" -> "quit";
-            default -> help();
+            default -> "\n" + help();
         };
+    }
+
+    public String createGame(String... params) {
+        if (params.length == 1) {
+            String gameName = params[0];
+            CreateGameRequest request = new CreateGameRequest(gameName);
+            try {
+                var result = server.createGame(authToken, request);
+                return SET_TEXT_COLOR_GREEN + "Successfully created game: " + gameName + "\n";
+
+            } catch (ClientBadRequestException ex) {
+                return SET_TEXT_COLOR_RED + "Game name required.";
+            } catch (ClientUnauthorizedException ex) {
+                return SET_TEXT_COLOR_RED + "Sign in to create a game.";
+            } catch (ClientServerException ex) {
+                return SET_TEXT_COLOR_RED + "Internal server error. Please try again later.";
+            } catch (ClientNetworkException ex) {
+                return SET_TEXT_COLOR_RED + "Connection Error. Please try again later.";
+            } catch (Exception ex) {
+                return SET_TEXT_COLOR_RED + "Unknown Error. Please try again later.";
+            }
+        } else {
+            return SET_TEXT_COLOR_RED + "Expected: <gamename>";
+        }
     }
 
     public String logout() {

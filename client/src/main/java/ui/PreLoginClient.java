@@ -36,11 +36,13 @@ public class PreLoginClient implements ChessClient {
                 if (state == LOGGED_IN) {
                     PostLoginClient postLoginClient = new PostLoginClient(server, authToken);
                     String postLoginResult = postLoginClient.run();
+
                     state = LOGGED_OUT;
+
                     if (postLoginResult.equals("quit")) {
                         result = "quit";
                     } else {
-                        System.out.println("Successfully logged out.");
+                        System.out.println(SET_TEXT_COLOR_GREEN + "Successfully logged out.");
                         System.out.print("\n" + help());
                     }
                 }
@@ -51,7 +53,7 @@ public class PreLoginClient implements ChessClient {
             }
         }
         System.out.println();
-        return "Goodbye.";
+        return "\nGoodbye.";
     }
 
     private void printPrompt() {

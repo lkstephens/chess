@@ -91,8 +91,7 @@ public class ServerFacade {
         }
     }
 
-    private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass)
-            throws Exception {
+    private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws Exception {
 
         var status = response.statusCode();
 
