@@ -92,8 +92,7 @@ public class ServerFacade {
     }
 
     private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass)
-            throws ClientBadRequestException, ClientUnauthorizedException, ClientAlreadyTakenException,
-                   ClientServerException, ClientUnknownException {
+            throws Exception {
 
         var status = response.statusCode();
 
@@ -119,7 +118,7 @@ public class ServerFacade {
                 }
             }
 
-            throw new ClientUnknownException("other failure: " + status);
+            throw new Exception("other failure: " + status);
         }
 
         // Successful Path
