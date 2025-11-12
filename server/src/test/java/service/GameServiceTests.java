@@ -2,7 +2,7 @@ package service;
 
 import dataaccess.*;
 import datamodel.*;
-import model.GameData;
+import datamodel.GameData;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;

@@ -269,7 +269,7 @@ public class PostLoginClient implements ChessClient {
             var games = listGames.games();
 
             if (!games.isEmpty()) {
-                for (model.GameData currGame : games) {
+                for (datamodel.GameData currGame : games) {
                     gameIDs.add(currGame.gameID());
                     chessGames.add(currGame.game());
                     gameNames.add(currGame.gameName());

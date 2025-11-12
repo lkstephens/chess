@@ -1,6 +1,6 @@
 package dataaccess;
 
-import model.AuthData;
+import datamodel.AuthData;
 
 public interface AuthDAO {
     void clear() throws DataAccessException;

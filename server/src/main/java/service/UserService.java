@@ -2,7 +2,6 @@ package service;
 
 import dataaccess.*;
 import datamodel.*;
-import model.*;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.UUID;
