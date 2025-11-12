@@ -164,7 +164,7 @@ public class PostLoginClient implements ChessClient {
 
             int gameNum = Integer.parseInt(params[0]);
             if (gameNum < 1 || gameNum > gameIDs.size()) {
-                return SET_TEXT_COLOR_RED + "Game number does not exist. Try a different number.";
+                return SET_TEXT_COLOR_RED + "Game does not exist. Try a different number.";
             }
 
             int gameID = gameIDs.get(gameNum - 1);
@@ -180,7 +180,7 @@ public class PostLoginClient implements ChessClient {
                 if (playerColor.equals("WHITE")) {
                     System.out.print(drawBoardWhite(board));
                 } else {
-                    System.out.print(drawBoardWhite(board));
+                    System.out.print(drawBoardBlack(board));
                 }
 
                 return SET_TEXT_COLOR_GREEN + "Successfully joined game as " + playerColor + "\n";
@@ -236,16 +236,16 @@ public class PostLoginClient implements ChessClient {
                 // col letters printing
                 if (i == 0 || i == 9) {
 
-                    out.append(SET_TEXT_COLOR_BLUE)
+                    out.append(SET_TEXT_COLOR_BLACK)
                        .append(SET_BG_COLOR_LIGHT_GREY);
 
-                    out.append(EMPTY);
+                    out.append("   ");
 
                     // 2. Column Letters (8 columns, each 3 chars wide: letter + two spaces)
-                    out.append(" a ").append(" b ").append(" c ").append(" d ")
-                       .append(" e ").append(" f ").append(" g ").append(" h ");
+                    out.append(" ａ ").append(" ｂ ").append(" ｃ ").append(" ｄ ")
+                       .append(" ｅ ").append(" ｆ ").append(" ｇ ").append(" ｈ ");
 
-                    out.append(EMPTY);
+                    out.append("   ");
 
                     out.append(RESET_BG_COLOR)
                        .append(RESET_TEXT_COLOR)
@@ -256,18 +256,18 @@ public class PostLoginClient implements ChessClient {
                 } else {
                     // row #s printing
                     if (j == 0 || j == 9) {
-                        out.append(SET_TEXT_COLOR_BLUE + SET_BG_COLOR_LIGHT_GREY);
+                        out.append(SET_TEXT_COLOR_BLACK + SET_BG_COLOR_LIGHT_GREY);
                         out.append(" ");
-                        out.append(8 - i + 1);
+                        out.append(i);
                         out.append(" ");
 
                     // board & pieces printing
                     } else {
 
                         if ((i%2 == 1 && j%2 == 1) || (i%2 == 0 && j%2 == 0)) {
-                            out.append(SET_BG_COLOR_TAN);
-                        } else {
                             out.append(SET_BG_COLOR_BROWN);
+                        } else {
+                            out.append(SET_BG_COLOR_TAN);
                         }
 
                         ChessPiece piece = board.getPiece(new ChessPosition(i, j));
@@ -289,6 +289,80 @@ public class PostLoginClient implements ChessClient {
 
                     }
                     if (j == 9) {
+                        out.append(RESET_BG_COLOR + RESET_TEXT_COLOR);
+                        out.append("\n");
+                    }
+                }
+            }
+        }
+        out.append(RESET_BG_COLOR + RESET_TEXT_COLOR);
+
+        return out.toString();
+    }
+
+    public String drawBoardBlack(ChessBoard board) {
+
+        StringBuilder out = new StringBuilder();
+        // i: rows, j: cols
+        for (int i = 0; i <= 9; i++) {
+            for (int j = 9; j >= 0; j--) {
+
+                // col letters printing
+                if (i == 0 || i == 9) {
+
+                    out.append(SET_TEXT_COLOR_BLACK)
+                       .append(SET_BG_COLOR_LIGHT_GREY);
+
+                    out.append("   ");
+
+                    // 2. Column Letters (8 columns, each 3 chars wide: letter + two spaces)
+                    out.append(" ｈ ").append(" ｇ ").append(" ｆ ").append(" ｅ ")
+                       .append(" ｄ ").append(" ｃ ").append(" ｂ ").append(" ａ ");
+
+                    out.append("   ");
+
+                    out.append(RESET_BG_COLOR)
+                       .append(RESET_TEXT_COLOR)
+                       .append("\n");
+
+                    break;
+
+                } else {
+                    // row #s printing
+                    if (j == 0 || j == 9) {
+                        out.append(SET_TEXT_COLOR_BLACK + SET_BG_COLOR_LIGHT_GREY);
+                        out.append(" ");
+                        out.append(i);
+                        out.append(" ");
+
+                        // board & pieces printing
+                    } else {
+
+                        if ((i%2 == 1 && j%2 == 1) || (i%2 == 0 && j%2 == 0)) {
+                            out.append(SET_BG_COLOR_BROWN);
+                        } else {
+                            out.append(SET_BG_COLOR_TAN);
+                        }
+
+                        ChessPiece piece = board.getPiece(new ChessPosition(i, j));
+
+                        if (piece != null) {
+                            ChessGame.TeamColor color = piece.getTeamColor();
+                            ChessPiece.PieceType type = piece.getPieceType();
+
+                            if (color == ChessGame.TeamColor.WHITE) {
+                                out.append(SET_TEXT_COLOR_WHITE);
+                            } else {
+                                out.append(SET_TEXT_COLOR_BLACK);
+                            }
+
+                            out.append(getPieceUnicode(color, type));
+                        } else {
+                            out.append(EMPTY);
+                        }
+
+                    }
+                    if (j == 0) {
                         out.append(RESET_BG_COLOR + RESET_TEXT_COLOR);
                         out.append("\n");
                     }
