@@ -130,16 +130,4 @@ public class SQLGameDAO implements GameDAO{
 
         return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
     }
-
-//    private GameDataTruncated readGameDataTrunc(ResultSet rs) throws SQLException {
-//
-//        var gameID = rs.getInt(1);
-//        var whiteUsername = rs.getString("whiteUsername");
-//        var blackUsername = rs.getString("blackUsername");
-//        var gameName = rs.getString("gameName");
-//
-//        return new GameDataTruncated(gameID, whiteUsername, blackUsername, gameName);
-//    }
-
-
 }

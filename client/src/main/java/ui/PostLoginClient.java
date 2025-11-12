@@ -284,16 +284,20 @@ public class PostLoginClient implements ChessClient {
 
     private String drawBoardWhite(ChessBoard board) {
 
+        final int top = 9;
+        final int bottom = 0;
+        final int left = 0;
+        final int right = 9;
+
         StringBuilder out = new StringBuilder();
         // i: rows, j: cols
-        for (int i = 9; i >= 0; i--) {
-            for (int j = 0; j <= 9; j++) {
+        for (int i = top; i >= bottom; i--) {
+            for (int j = left; j <= right; j++) {
 
                 // col letters printing
                 if (i == 0 || i == 9) {
 
-                    out.append(SET_TEXT_COLOR_BLACK)
-                       .append(SET_BG_COLOR_LIGHT_GREY);
+                    out.append(SET_TEXT_COLOR_BLACK).append(SET_BG_COLOR_LIGHT_GREY);
 
                     out.append("   ");
 
@@ -303,9 +307,7 @@ public class PostLoginClient implements ChessClient {
 
                     out.append("   ");
 
-                    out.append(RESET_BG_COLOR)
-                       .append(RESET_TEXT_COLOR)
-                       .append("\n");
+                    out.append(RESET_BG_COLOR).append(RESET_TEXT_COLOR).append("\n");
 
                     break;
 
@@ -319,30 +321,7 @@ public class PostLoginClient implements ChessClient {
 
                     // board & pieces printing
                     } else {
-
-                        if ((i%2 == 1 && j%2 == 1) || (i%2 == 0 && j%2 == 0)) {
-                            out.append(SET_BG_COLOR_BROWN);
-                        } else {
-                            out.append(SET_BG_COLOR_TAN);
-                        }
-
-                        ChessPiece piece = board.getPiece(new ChessPosition(i, j));
-
-                        if (piece != null) {
-                            ChessGame.TeamColor color = piece.getTeamColor();
-                            ChessPiece.PieceType type = piece.getPieceType();
-
-                            if (color == ChessGame.TeamColor.WHITE) {
-                                out.append(SET_TEXT_COLOR_WHITE);
-                            } else {
-                                out.append(SET_TEXT_COLOR_BLACK);
-                            }
-
-                            out.append(getPieceUnicode(color, type));
-                        } else {
-                            out.append(EMPTY);
-                        }
-
+                        printMainBoard(board, i, j, out);
                     }
                     if (j == 9) {
                         out.append(RESET_BG_COLOR + RESET_TEXT_COLOR);
@@ -366,8 +345,7 @@ public class PostLoginClient implements ChessClient {
                 // col letters printing
                 if (i == 0 || i == 9) {
 
-                    out.append(SET_TEXT_COLOR_BLACK)
-                       .append(SET_BG_COLOR_LIGHT_GREY);
+                    out.append(SET_TEXT_COLOR_BLACK).append(SET_BG_COLOR_LIGHT_GREY);
 
                     out.append("   ");
 
@@ -377,9 +355,7 @@ public class PostLoginClient implements ChessClient {
 
                     out.append("   ");
 
-                    out.append(RESET_BG_COLOR)
-                       .append(RESET_TEXT_COLOR)
-                       .append("\n");
+                    out.append(RESET_BG_COLOR).append(RESET_TEXT_COLOR).append("\n");
 
                     break;
 
@@ -393,30 +369,7 @@ public class PostLoginClient implements ChessClient {
 
                         // board & pieces printing
                     } else {
-
-                        if ((i%2 == 1 && j%2 == 1) || (i%2 == 0 && j%2 == 0)) {
-                            out.append(SET_BG_COLOR_BROWN);
-                        } else {
-                            out.append(SET_BG_COLOR_TAN);
-                        }
-
-                        ChessPiece piece = board.getPiece(new ChessPosition(i, j));
-
-                        if (piece != null) {
-                            ChessGame.TeamColor color = piece.getTeamColor();
-                            ChessPiece.PieceType type = piece.getPieceType();
-
-                            if (color == ChessGame.TeamColor.WHITE) {
-                                out.append(SET_TEXT_COLOR_WHITE);
-                            } else {
-                                out.append(SET_TEXT_COLOR_BLACK);
-                            }
-
-                            out.append(getPieceUnicode(color, type));
-                        } else {
-                            out.append(EMPTY);
-                        }
-
+                        printMainBoard(board, i, j, out);
                     }
                     if (j == 0) {
                         out.append(RESET_BG_COLOR + RESET_TEXT_COLOR);
@@ -428,6 +381,32 @@ public class PostLoginClient implements ChessClient {
         out.append(RESET_BG_COLOR + RESET_TEXT_COLOR);
 
         return out.toString();
+    }
+
+    private void printMainBoard(ChessBoard board, int row, int col, StringBuilder out) {
+
+        if ((row%2 == 1 && col%2 == 1) || (row%2 == 0 && col%2 == 0)) {
+            out.append(SET_BG_COLOR_BROWN);
+        } else {
+            out.append(SET_BG_COLOR_TAN);
+        }
+
+        ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+
+        if (piece != null) {
+            ChessGame.TeamColor color = piece.getTeamColor();
+            ChessPiece.PieceType type = piece.getPieceType();
+
+            if (color == ChessGame.TeamColor.WHITE) {
+                out.append(SET_TEXT_COLOR_WHITE);
+            } else {
+                out.append(SET_TEXT_COLOR_BLACK);
+            }
+
+            out.append(getPieceUnicode(color, type));
+        } else {
+            out.append(EMPTY);
+        }
     }
 
     private String getPieceUnicode(ChessGame.TeamColor color, ChessPiece.PieceType type) {

@@ -69,13 +69,6 @@ public class MemoryGameDAO implements GameDAO{
     @Override
     public List<GameData> listGames() throws DataAccessException {
         try {
-//            ArrayList<GameData> raw = new ArrayList<>(gameDataTreeMap.values());
-//            ArrayList<GameDataTruncated> filtered = new ArrayList<>();
-//            for (GameData data : raw) {
-//                filtered.add(new GameDataTruncated(data.gameID(), data.whiteUsername(),
-//                        data.blackUsername(), data.gameName()));
-//            }
-//            return filtered;
             return new ArrayList<>(gameDataTreeMap.values());
 
         } catch (Exception e) {
