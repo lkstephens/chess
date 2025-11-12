@@ -10,7 +10,6 @@ import datamodel.CreateGameRequest;
 import datamodel.JoinGameRequest;
 import datamodel.ListGamesResult;
 
-import java.security.cert.TrustAnchor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -20,13 +19,15 @@ import static ui.EscapeSequences.*;
 public class PostLoginClient implements ChessClient {
 
     private final ServerFacade server;
-    private String authToken;
-    private ArrayList<Integer> gameIDs = new ArrayList<>();
-    private ArrayList<ChessGame> chessGames = new ArrayList<>();
+    private final String authToken;
+    private final ArrayList<Integer> gameIDs = new ArrayList<>();
+    private final ArrayList<ChessGame> chessGames = new ArrayList<>();
+    private final ArrayList<String> gameNames = new ArrayList<>();
 
     public PostLoginClient(ServerFacade server, String authToken) {
         this.server = server;
         this.authToken = authToken;
+        populateGameArrays();
     }
 
     public String run() {
@@ -66,11 +67,11 @@ public class PostLoginClient implements ChessClient {
                + RESET_TEXT_COLOR + " - games\n"
 
                + SET_TEXT_COLOR_BLUE + "join "
-               + SET_TEXT_COLOR_MAGENTA + "<game#> [WHITE|BLACK]"
+               + SET_TEXT_COLOR_MAGENTA + "<#> [WHITE|BLACK]"
                + RESET_TEXT_COLOR + " - a game\n"
 
                + SET_TEXT_COLOR_BLUE + "observe "
-               + SET_TEXT_COLOR_MAGENTA + "<game#>"
+               + SET_TEXT_COLOR_MAGENTA + "<#>"
                + RESET_TEXT_COLOR + " - a game\n"
 
                + SET_TEXT_COLOR_BLUE + "logout "
@@ -90,21 +91,24 @@ public class PostLoginClient implements ChessClient {
 
         return switch (cmd) {
             case "create" -> createGame(params);
-            case "list" -> listGames();
+            case "list" -> listGames(params);
             case "join" -> joinGame(params);
-            //case "observe" -> observeGame(params);
-            case "logout" -> logout();
+            case "observe" -> observeGame(params);
+            case "logout" -> logout(params);
             case "quit" -> "quit";
             default -> "\n" + help();
         };
     }
 
     public String createGame(String... params) {
+
         if (params.length == 1) {
+
             String gameName = params[0];
             CreateGameRequest request = new CreateGameRequest(gameName);
             try {
-                var result = server.createGame(authToken, request);
+                server.createGame(authToken, request);
+                populateGameArrays();
                 return SET_TEXT_COLOR_GREEN + "Successfully created game: " + gameName + "\n";
 
             } catch (ClientBadRequestException ex) {
@@ -118,49 +122,57 @@ public class PostLoginClient implements ChessClient {
             } catch (Exception ex) {
                 return SET_TEXT_COLOR_RED + "Unknown Error. Please try again later.";
             }
-        } else {
-            return SET_TEXT_COLOR_RED + "Expected: <gamename>";
         }
+
+        return SET_TEXT_COLOR_RED + "Expected: <gamename>";
     }
 
-    public String listGames() {
-        try {
-            ListGamesResult listGames = server.listGames(authToken);
-            gameIDs.clear();
-            var games = listGames.games();
+    public String listGames(String... params) {
 
-            if (games.isEmpty()) {
-                System.out.println("No existing games. Create a new one!");
+        if (params.length == 0) {
+
+            try {
+                ListGamesResult listGames = server.listGames(authToken);
+                gameIDs.clear();
+                var games = listGames.games();
+
+                if (games.isEmpty()) {
+                    System.out.println("No existing games. Create a new one!");
+                }
+
+                for (int i = 0; i < games.size(); i++) {
+                    var currGame = games.get(i);
+                    gameIDs.add(currGame.gameID());
+                    chessGames.add(currGame.game());
+                    gameNames.add(currGame.gameName());
+
+                    var whiteUserPrint = (currGame.whiteUsername() == null) ? "" : currGame.whiteUsername();
+                    var blackUserPrint = (currGame.blackUsername() == null) ? "" : currGame.blackUsername();
+
+                    System.out.print((i + 1) + ". Game Name: " + currGame.gameName() + "\t\t"
+                            + "White: " + whiteUserPrint + "\t\t"
+                            + "Black: " + blackUserPrint + "\n");
+                }
+
+                return "";
+
+            } catch (ClientUnauthorizedException ex) {
+                return SET_TEXT_COLOR_RED + "You must sign in before retrieving a list of games.";
+            } catch (ClientServerException ex) {
+                return SET_TEXT_COLOR_RED + "Internal server error. Please try again later.";
+            } catch (ClientNetworkException ex) {
+                return SET_TEXT_COLOR_RED + "Connection Error. Please try again later.";
+            } catch (Exception ex) {
+                return SET_TEXT_COLOR_RED + "Unknown Error. Please try again later.";
             }
-
-            for (int i = 0; i < games.size(); i++) {
-                var currGame = games.get(i);
-                gameIDs.add(currGame.gameID());
-                chessGames.add(currGame.game());
-
-                var whiteUserPrint = (currGame.whiteUsername() == null) ? "" : currGame.whiteUsername();
-                var blackUserPrint = (currGame.blackUsername() == null) ? "" : currGame.blackUsername();
-
-                System.out.print((i+1) + ". Game Name: " + currGame.gameName() + "\t\t"
-                                       + "White: " + whiteUserPrint + "\t\t"
-                                       + "Black: " + blackUserPrint + "\n");
-            }
-
-            return "";
-
-        } catch (ClientUnauthorizedException ex) {
-            return SET_TEXT_COLOR_RED + "You must sign in before retrieving a list of games.";
-        } catch (ClientServerException ex) {
-            return SET_TEXT_COLOR_RED + "Internal server error. Please try again later.";
-        } catch (ClientNetworkException ex) {
-            return SET_TEXT_COLOR_RED + "Connection Error. Please try again later.";
-        } catch (Exception ex) {
-            return SET_TEXT_COLOR_RED + "Unknown Error. Please try again later.";
         }
+
+        return SET_TEXT_COLOR_RED + "Expected no parameters for \"list\".";
     }
 
     public String joinGame(String...params) {
-        if (params.length == 2) {
+
+        if (params.length == 2 && isInteger(params[0])) {
 
             int gameNum = Integer.parseInt(params[0]);
             if (gameNum < 1 || gameNum > gameIDs.size()) {
@@ -183,7 +195,9 @@ public class PostLoginClient implements ChessClient {
                     System.out.print(drawBoardBlack(board));
                 }
 
-                return SET_TEXT_COLOR_GREEN + "Successfully joined game as " + playerColor + "\n";
+                String gameName = gameNames.get(gameNum-1);
+
+                return SET_TEXT_COLOR_GREEN + "Successfully joined \""+gameName+"\" as " + playerColor + "\n";
 
             } catch (ClientBadRequestException ex) {
                 return SET_TEXT_COLOR_RED + "Make sure to enter a valid game number and player color.";
@@ -199,34 +213,76 @@ public class PostLoginClient implements ChessClient {
                 return SET_TEXT_COLOR_RED + "Unknown Error. Please try again later.";
             }
         }
-        return SET_TEXT_COLOR_RED + "Expected: <game#> <WHITE|BLACK>";
+
+        return SET_TEXT_COLOR_RED + "Expected: <#> <WHITE|BLACK>";
     }
 
-//    public String observeGame(String...params) {
-//        if (params.length == 1) {
-//            int gameNum = Integer.parseInt(params[0]);
-//        } else {
-//            return SET_TEXT_COLOR_RED + "Expected: <game#>";
-//        }
-//    }
+    public String observeGame(String...params) {
 
-    public String logout() {
+        if (params.length == 1 && isInteger(params[0])) {
+
+            int gameNum = Integer.parseInt(params[0]);
+
+            if (gameNum < 1 || gameNum > gameIDs.size()) {
+                return SET_TEXT_COLOR_RED + "Game does not exist. Try a different number.";
+            }
+
+            var game = chessGames.get(gameNum-1);
+            var board = game.getBoard();
+            var gameName = gameNames.get(gameNum-1);
+
+            System.out.print(drawBoardWhite(board));
+
+            return SET_TEXT_COLOR_BLUE + "Observing \"" + gameName + "\"\n";
+        }
+
+        return SET_TEXT_COLOR_RED + "Expected: <#>";
+
+    }
+
+    public String logout(String... params) {
+
+        if (params.length == 0) {
+
+            try {
+                server.logout(authToken);
+                return "logout";
+
+            } catch (ClientUnauthorizedException ex) {
+                return SET_TEXT_COLOR_RED + "Failed to logout";
+            } catch (ClientServerException ex) {
+                return SET_TEXT_COLOR_RED + "Internal server error. Please try again later.";
+            } catch (ClientNetworkException ex) {
+                return SET_TEXT_COLOR_RED + "Connection Error. Please try again later.";
+            } catch (Exception ex) {
+                return SET_TEXT_COLOR_RED + "Unknown Error. Please try again later.";
+            }
+        }
+
+        return SET_TEXT_COLOR_RED + "Expected no parameters for \"logout\"";
+    }
+
+    private void populateGameArrays() {
         try {
-            server.logout(authToken);
-            return "logout";
+            ListGamesResult listGames = server.listGames(authToken);
+            gameIDs.clear();
+            var games = listGames.games();
 
-        } catch (ClientUnauthorizedException ex) {
-            return SET_TEXT_COLOR_RED + "Failed to logout";
-        } catch (ClientServerException ex) {
-            return SET_TEXT_COLOR_RED + "Internal server error. Please try again later.";
-        } catch (ClientNetworkException ex) {
-            return SET_TEXT_COLOR_RED + "Connection Error. Please try again later.";
-        } catch (Exception ex) {
-            return SET_TEXT_COLOR_RED + "Unknown Error. Please try again later.";
+            if (!games.isEmpty()) {
+                for (model.GameData currGame : games) {
+                    gameIDs.add(currGame.gameID());
+                    chessGames.add(currGame.game());
+                    gameNames.add(currGame.gameName());
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.print("Internal server error. Please try again later.");
+            System.exit(-1);
         }
     }
 
-    public String drawBoardWhite(ChessBoard board) {
+    private String drawBoardWhite(ChessBoard board) {
 
         StringBuilder out = new StringBuilder();
         // i: rows, j: cols
@@ -300,7 +356,7 @@ public class PostLoginClient implements ChessClient {
         return out.toString();
     }
 
-    public String drawBoardBlack(ChessBoard board) {
+    private String drawBoardBlack(ChessBoard board) {
 
         StringBuilder out = new StringBuilder();
         // i: rows, j: cols
@@ -374,7 +430,7 @@ public class PostLoginClient implements ChessClient {
         return out.toString();
     }
 
-    public String getPieceUnicode(ChessGame.TeamColor color, ChessPiece.PieceType type) {
+    private String getPieceUnicode(ChessGame.TeamColor color, ChessPiece.PieceType type) {
         if (color == ChessGame.TeamColor.WHITE) {
             return switch (type) {
                 case KING -> WHITE_KING;
@@ -394,6 +450,14 @@ public class PostLoginClient implements ChessClient {
                 case PAWN -> BLACK_PAWN;
             };
         }
+    }
 
+    private static boolean isInteger(String s) {
+        try {
+            Integer.parseInt(s);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 }
