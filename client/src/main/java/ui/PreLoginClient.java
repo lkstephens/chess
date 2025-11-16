@@ -20,6 +20,7 @@ public class PreLoginClient implements ChessClient {
         server = new ServerFacade(serverURL);
     }
 
+    @Override
     public String run() {
         System.out.println("\n♕ Welcome to 240 Chess. Type help to get started. ♕");
 
@@ -59,10 +60,12 @@ public class PreLoginClient implements ChessClient {
         return "\nGoodbye.";
     }
 
+    @Override
     public void printPrompt() {
         System.out.print("\n" + RESET_TEXT_COLOR + "[LOGGED OUT] " + ">>> ");
     }
 
+    @Override
     public String help() {
 
         return    SET_TEXT_COLOR_BLUE + "register "
@@ -80,6 +83,7 @@ public class PreLoginClient implements ChessClient {
                 + RESET_TEXT_COLOR + " - with possible commands\n";
      }
 
+     @Override
      public String eval(String input) {
          String[] tokens = input.toLowerCase().split(" ");
          String cmd = (tokens.length > 0) ? tokens[0] : "help";

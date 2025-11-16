@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
+import static ui.State.*;
 
 public class PostLoginClient implements ChessClient {
 
@@ -23,6 +24,8 @@ public class PostLoginClient implements ChessClient {
     private final ArrayList<Integer> gameIDs = new ArrayList<>();
     private final ArrayList<ChessGame> chessGames = new ArrayList<>();
     private final ArrayList<String> gameNames = new ArrayList<>();
+    private State state = LOGGED_IN;
+    private String joinedGameName;
 
     public PostLoginClient(ServerFacade server, String authToken) {
         this.server = server;
@@ -30,6 +33,7 @@ public class PostLoginClient implements ChessClient {
         populateGameArrays();
     }
 
+    @Override
     public String run() {
         System.out.print("\n\n" + help());
 
@@ -44,6 +48,13 @@ public class PostLoginClient implements ChessClient {
                 if (!result.equals("logout") && !result.equals("quit")) {
                     System.out.print(result);
                 }
+                // Joining a game
+                if (state == JOINED_GAME) {
+                    GameplayClient gameplayClient = new GameplayClient(server, authToken, joinedGameName);
+                    String gameplayResult = gameplayClient.run();
+
+                    state = LOGGED_IN;
+                }
 
             } catch (Throwable e) {
                 var msg = e.toString();
@@ -53,10 +64,12 @@ public class PostLoginClient implements ChessClient {
         return result;
     }
 
+    @Override
     public void printPrompt() {
         System.out.print("\n" + RESET_TEXT_COLOR + "[LOGGED IN] " + ">>> ");
     }
 
+    @Override
     public String help() {
         return
                  SET_TEXT_COLOR_BLUE + "create "
@@ -84,6 +97,7 @@ public class PostLoginClient implements ChessClient {
                + RESET_TEXT_COLOR + " - with possible commands\n";
     }
 
+    @Override
     public String eval(String input) {
         String[] tokens = input.toLowerCase().split(" ");
         String cmd = (tokens.length > 0) ? tokens[0] : "help";
@@ -195,9 +209,11 @@ public class PostLoginClient implements ChessClient {
                     System.out.print(drawBoardBlack(board));
                 }
 
-                String gameName = gameNames.get(gameNum-1);
+                joinedGameName = gameNames.get(gameNum-1);
 
-                return SET_TEXT_COLOR_GREEN + "Successfully joined \""+gameName+"\" as " + playerColor + "\n";
+                state = JOINED_GAME;
+
+                return SET_TEXT_COLOR_GREEN + "Successfully joined \""+joinedGameName+"\" as " + playerColor + "\n";
 
             } catch (ClientBadRequestException ex) {
                 return SET_TEXT_COLOR_RED + "Make sure to enter a valid game number and player color.";
