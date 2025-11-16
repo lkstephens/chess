@@ -2,9 +2,12 @@ package ui;
 
 import client.ServerFacade;
 
+import java.util.Arrays;
 import java.util.Scanner;
 
-import static ui.EscapeSequences.RESET_TEXT_COLOR;
+import static ui.EscapeSequences.*;
+import static ui.EscapeSequences.SET_TEXT_COLOR_BLUE;
+import static ui.EscapeSequences.SET_TEXT_COLOR_MAGENTA;
 
 public class GameplayClient implements ChessClient {
 
@@ -20,7 +23,7 @@ public class GameplayClient implements ChessClient {
 
     @Override
     public String run() {
-        System.out.print("\n\n" + help());
+        System.out.print("\n" + help());
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -30,7 +33,9 @@ public class GameplayClient implements ChessClient {
 
             try {
                 result = eval(line);
-                System.out.print(result);
+                if (!result.equals("leave")) {
+                    System.out.print(result);
+                }
 
             } catch (Throwable e) {
                 var msg = e.toString();
@@ -47,11 +52,62 @@ public class GameplayClient implements ChessClient {
 
     @Override
     public String help() {
-        return "";
+        return
+                SET_TEXT_COLOR_BLUE + "redraw"
+              + RESET_TEXT_COLOR + " - chess board\n"
+
+              + SET_TEXT_COLOR_BLUE + "highlight "
+              + SET_TEXT_COLOR_MAGENTA + "<a1>"
+              + RESET_TEXT_COLOR + " - legal moves\n"
+
+              + SET_TEXT_COLOR_BLUE + "makemove "
+              + SET_TEXT_COLOR_MAGENTA + "<a1> <a1>"
+              + RESET_TEXT_COLOR + " - to make a move\n"
+
+              + SET_TEXT_COLOR_BLUE + "resign"
+              + RESET_TEXT_COLOR + " - to forfeit game\n"
+
+              + SET_TEXT_COLOR_BLUE + "leave"
+              + RESET_TEXT_COLOR + " - game\n"
+
+              + SET_TEXT_COLOR_BLUE + "help "
+              + RESET_TEXT_COLOR + " - with possible commands\n";
     }
 
     @Override
     public String eval(String input) {
-        return "";
+        String[] tokens = input.toLowerCase().split(" ");
+        String cmd = (tokens.length > 0) ? tokens[0] : "help";
+        String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
+
+        return switch (cmd) {
+            case "redraw" -> redrawBoard(params);
+            case "highlight" -> highlight(params);
+            case "makemove" -> makeMove(params);
+            case "resign" -> resign(params);
+            case "leave" -> leave(params);
+            default -> "\n" + help();
+        };
+    }
+
+    public String redrawBoard(String... params) {
+        return "redrawingBoard";
+    }
+
+    public String highlight(String... params) {
+        return "highlighting moves";
+    }
+
+    public String makeMove(String... params) {
+        return "making a move";
+    }
+
+    public String resign(String... params) {
+        return "resigning";
+    }
+
+    public String leave(String... params) {
+        // does this need to remove the user from the game?
+        return "leave";
     }
 }
