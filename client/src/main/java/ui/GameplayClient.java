@@ -1,7 +1,10 @@
 package ui;
 
 import chess.ChessBoard;
+import chess.ChessGame;
 import client.ServerFacade;
+import client.ServerMessageObserver;
+import websocket.messages.ServerMessage;
 
 import java.util.Arrays;
 import java.util.Scanner;
@@ -10,18 +13,20 @@ import static ui.EscapeSequences.*;
 import static ui.EscapeSequences.SET_TEXT_COLOR_BLUE;
 import static ui.EscapeSequences.SET_TEXT_COLOR_MAGENTA;
 
-public class GameplayClient implements ChessClient {
+public class GameplayClient implements ChessClient, ServerMessageObserver {
 
-    private final ServerFacade server;
-    private final String authToken;
+    private ChessGame game;
     private final String gameName;
     private ChessBoard board;
-    private final String color;
+    private final String clientColor;
+    private final ServerFacade server;
+    private final String authToken;
 
-    public GameplayClient(ChessBoard board, String gameName, String color, ServerFacade server, String authToken) {
-        this.board = board;
+    public GameplayClient(ChessGame game, String gameName, String color, ServerFacade server, String authToken) {
+        this.game = game;
         this.gameName = gameName;
-        this.color = color;
+        board = game.getBoard();
+        clientColor = color;
         this.server = server;
         this.authToken = authToken;
     }
@@ -97,7 +102,10 @@ public class GameplayClient implements ChessClient {
 
     public String redrawBoard(String... params) {
         if (params.length == 0) {
-            if (color.equals("WHITE")) {
+
+            System.out.println();
+
+            if (clientColor.equals("WHITE")) {
                 return PostLoginClient.drawBoardWhite(board);
             } else {
                 return PostLoginClient.drawBoardBlack(board);
@@ -123,4 +131,10 @@ public class GameplayClient implements ChessClient {
         // does this need to remove the user from the game?
         return "leave";
     }
+
+    @Override
+    public void notify(ServerMessage message) {
+
+    }
+
 }

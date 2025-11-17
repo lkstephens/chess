@@ -27,7 +27,7 @@ public class PostLoginClient implements ChessClient {
     private final ArrayList<String> gameNames = new ArrayList<>();
 
     private String joinedGameName;
-    private ChessBoard joinedGameBoard;
+    private ChessGame joinedGame;
     private String joinedGameColor;
 
     private State state = LOGGED_IN;
@@ -56,7 +56,7 @@ public class PostLoginClient implements ChessClient {
                 // Joining a game
                 if (state == JOINED_GAME) {
                     GameplayClient gameplayClient =
-                        new GameplayClient(joinedGameBoard, joinedGameName, joinedGameColor, server, authToken);
+                        new GameplayClient(joinedGame, joinedGameName, joinedGameColor, server, authToken);
                     String gameplayResult = gameplayClient.run();
 
                     if (!gameplayResult.equals("leave")){
@@ -211,22 +211,20 @@ public class PostLoginClient implements ChessClient {
             String playerColor = params[1].toUpperCase();
             JoinGameRequest request = new JoinGameRequest(playerColor, gameID);
 
-            ChessGame game = chessGames.get(gameNum-1);
-
             try {
                 server.joinGame(authToken, request);
 
-                joinedGameBoard = game.getBoard();
-
-                if (playerColor.equals("WHITE")) {
-                    System.out.print(drawBoardWhite(joinedGameBoard));
-                } else {
-                    System.out.print(drawBoardBlack(joinedGameBoard));
-                }
-
+                joinedGame = chessGames.get(gameNum-1);
                 joinedGameName = gameNames.get(gameNum-1);
                 joinedGameColor = playerColor; // May want to change to TeamColor type
+
                 state = JOINED_GAME;
+
+                if (playerColor.equals("WHITE")) {
+                    System.out.print(drawBoardWhite(joinedGame.getBoard()));
+                } else {
+                    System.out.print(drawBoardBlack(joinedGame.getBoard()));
+                }
 
                 return SET_TEXT_COLOR_GREEN + "Successfully joined \""+joinedGameName+"\" as " + joinedGameColor + "\n";
 
