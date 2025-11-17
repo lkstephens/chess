@@ -2,6 +2,7 @@ package ui;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPosition;
 import client.ServerFacade;
 import client.ServerMessageObserver;
 import websocket.messages.ServerMessage;
@@ -67,7 +68,7 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
               + RESET_TEXT_COLOR + " - chess board\n"
 
               + SET_TEXT_COLOR_BLUE + "highlight "
-              + SET_TEXT_COLOR_MAGENTA + "<a1>"
+              + SET_TEXT_COLOR_MAGENTA + "<a-h1-8>"
               + RESET_TEXT_COLOR + " - legal moves\n"
 
               + SET_TEXT_COLOR_BLUE + "makemove "
@@ -102,9 +103,7 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
 
     public String redrawBoard(String... params) {
         if (params.length == 0) {
-
             System.out.println();
-
             if (clientColor.equals("WHITE")) {
                 return PostLoginClient.drawBoardWhite(board);
             } else {
@@ -115,8 +114,22 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
         return SET_TEXT_COLOR_RED + "Expected no parameters for \"redraw\".";
     }
 
-    public String highlight(String... params) {
-        return "highlighting moves";
+    public String highlight(String... coordinates) {
+
+        if (coordinates.length == 1) {
+            String coordinate = coordinates[0];
+
+            if (validateCoordinates(coordinate)) {
+                ChessPosition pos = convertToPosition(coordinate);
+                if (board.getPiece(pos) != null) {
+                    return "highlighting moves";
+                } else {
+                    return SET_TEXT_COLOR_RED + "No piece at " + coordinate + ".";
+                }
+            }
+        }
+
+        return SET_TEXT_COLOR_RED + "Expected <a-h1-8>";
     }
 
     public String makeMove(String... params) {
@@ -132,9 +145,37 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
         return "leave";
     }
 
+    private boolean validateCoordinates(String... coordinateArray) {
+
+        for (String coordinate : coordinateArray) {
+            coordinate = coordinate.toUpperCase();
+            if (coordinate.length() != 2) {
+                return false;
+            } else {
+                char rowChar = coordinate.charAt(0);
+                int colInt = Character.getNumericValue(coordinate.charAt(1));
+
+                if (rowChar < 'A' || rowChar > 'H' || colInt < 1 || colInt > 8) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private ChessPosition convertToPosition(String coordinate) {
+        coordinate = coordinate.toUpperCase();
+        int row = Character.getNumericValue(coordinate.charAt(1));
+        char colLetter = coordinate.charAt(0);
+        int col = colLetter - 'A' + 1;
+
+        return new ChessPosition(row, col);
+    }
+
     @Override
     public void notify(ServerMessage message) {
 
     }
+
 
 }
