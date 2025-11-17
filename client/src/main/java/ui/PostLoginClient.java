@@ -311,7 +311,7 @@ public class PostLoginClient implements ChessClient {
         }
     }
 
-    public static String drawBoardWhite(ChessBoard board) {
+    public static String drawBoardWhite(ChessBoard board, ChessPosition... highlightPositions) {
 
         final int top = 9;
         final int bottom = 0;
@@ -350,7 +350,7 @@ public class PostLoginClient implements ChessClient {
 
                     // board & pieces printing
                     } else {
-                        printMainBoard(board, i, j, out);
+                        printMainBoard(board, i, j, out, highlightPositions);
                     }
                     if (j == 9) {
                         out.append(RESET_BG_COLOR + RESET_TEXT_COLOR);
@@ -364,7 +364,7 @@ public class PostLoginClient implements ChessClient {
         return out.toString();
     }
 
-    public static String drawBoardBlack(ChessBoard board) {
+    public static String drawBoardBlack(ChessBoard board, ChessPosition... highlightPositions) {
 
         StringBuilder out = new StringBuilder();
         // i: rows, j: cols
@@ -398,7 +398,7 @@ public class PostLoginClient implements ChessClient {
 
                         // board & pieces printing
                     } else {
-                        printMainBoard(board, i, j, out);
+                        printMainBoard(board, i, j, out, highlightPositions);
                     }
                     if (j == 0) {
                         out.append(RESET_BG_COLOR + RESET_TEXT_COLOR);
@@ -412,12 +412,21 @@ public class PostLoginClient implements ChessClient {
         return out.toString();
     }
 
-    private static void printMainBoard(ChessBoard board, int row, int col, StringBuilder out) {
+    private static void printMainBoard(ChessBoard board, int row, int col, StringBuilder out,
+                                       ChessPosition...highlightPositions) {
+
+        ChessPosition pos = new ChessPosition(row, col);
 
         if ((row%2 == 1 && col%2 == 1) || (row%2 == 0 && col%2 == 0)) {
             out.append(SET_BG_COLOR_BROWN);
+            if (Arrays.asList(highlightPositions).contains(pos)) {
+                out.append(SET_BG_COLOR_LIGHT_BLUE);
+            }
         } else {
             out.append(SET_BG_COLOR_TAN);
+            if (Arrays.asList(highlightPositions).contains(pos)) {
+                out.append(SET_BG_COLOR_BLUE);
+            }
         }
 
         ChessPiece piece = board.getPiece(new ChessPosition(row, col));

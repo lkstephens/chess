@@ -2,13 +2,13 @@ package ui;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessMove;
 import chess.ChessPosition;
 import client.ServerFacade;
 import client.ServerMessageObserver;
 import websocket.messages.ServerMessage;
 
-import java.util.Arrays;
-import java.util.Scanner;
+import java.util.*;
 
 import static ui.EscapeSequences.*;
 import static ui.EscapeSequences.SET_TEXT_COLOR_BLUE;
@@ -122,7 +122,20 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
             if (validateCoordinates(coordinate)) {
                 ChessPosition pos = convertToPosition(coordinate);
                 if (board.getPiece(pos) != null) {
-                    return "highlighting moves";
+                    Collection<ChessMove> validMoves = game.validMoves(pos);
+                    List<ChessPosition> endPositions = new ArrayList<>();
+
+                    for (ChessMove move : validMoves) {
+                        endPositions.add(move.getEndPosition());
+                    }
+                    // Add start position to endPositions for highlighting
+                    endPositions.add(pos);
+
+                    ChessPosition[] highlightPosArray = endPositions.toArray(new ChessPosition[0]);
+
+                    return (clientColor.equals("WHITE")) ? PostLoginClient.drawBoardWhite(board, highlightPosArray) :
+                                                           PostLoginClient.drawBoardBlack(board,highlightPosArray);
+
                 } else {
                     return SET_TEXT_COLOR_RED + "No piece at " + coordinate + ".";
                 }
