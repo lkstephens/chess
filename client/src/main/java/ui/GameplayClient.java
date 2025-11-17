@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessBoard;
 import client.ServerFacade;
 
 import java.util.Arrays;
@@ -14,11 +15,15 @@ public class GameplayClient implements ChessClient {
     private final ServerFacade server;
     private final String authToken;
     private final String gameName;
+    private ChessBoard board;
+    private final String color;
 
-    public GameplayClient(ServerFacade server, String authToken, String gameName) {
+    public GameplayClient(ChessBoard board, String gameName, String color, ServerFacade server, String authToken) {
+        this.board = board;
+        this.gameName = gameName;
+        this.color = color;
         this.server = server;
         this.authToken = authToken;
-        this.gameName = gameName;
     }
 
     @Override
@@ -91,7 +96,15 @@ public class GameplayClient implements ChessClient {
     }
 
     public String redrawBoard(String... params) {
-        return "redrawingBoard";
+        if (params.length == 0) {
+            if (color.equals("WHITE")) {
+                return PostLoginClient.drawBoardWhite(board);
+            } else {
+                return PostLoginClient.drawBoardBlack(board);
+            }
+        }
+
+        return SET_TEXT_COLOR_RED + "Expected no parameters for \"redraw\".";
     }
 
     public String highlight(String... params) {

@@ -21,11 +21,16 @@ public class PostLoginClient implements ChessClient {
 
     private final ServerFacade server;
     private final String authToken;
+
     private final ArrayList<Integer> gameIDs = new ArrayList<>();
     private final ArrayList<ChessGame> chessGames = new ArrayList<>();
     private final ArrayList<String> gameNames = new ArrayList<>();
-    private State state = LOGGED_IN;
+
     private String joinedGameName;
+    private ChessBoard joinedGameBoard;
+    private String joinedGameColor;
+
+    private State state = LOGGED_IN;
 
     public PostLoginClient(ServerFacade server, String authToken) {
         this.server = server;
@@ -50,7 +55,8 @@ public class PostLoginClient implements ChessClient {
                 }
                 // Joining a game
                 if (state == JOINED_GAME) {
-                    GameplayClient gameplayClient = new GameplayClient(server, authToken, joinedGameName);
+                    GameplayClient gameplayClient =
+                        new GameplayClient(joinedGameBoard, joinedGameName, joinedGameColor, server, authToken);
                     String gameplayResult = gameplayClient.run();
 
                     if (!gameplayResult.equals("leave")){
@@ -206,22 +212,23 @@ public class PostLoginClient implements ChessClient {
             JoinGameRequest request = new JoinGameRequest(playerColor, gameID);
 
             ChessGame game = chessGames.get(gameNum-1);
-            ChessBoard board = game.getBoard();
 
             try {
                 server.joinGame(authToken, request);
 
+                joinedGameBoard = game.getBoard();
+
                 if (playerColor.equals("WHITE")) {
-                    System.out.print(drawBoardWhite(board));
+                    System.out.print(drawBoardWhite(joinedGameBoard));
                 } else {
-                    System.out.print(drawBoardBlack(board));
+                    System.out.print(drawBoardBlack(joinedGameBoard));
                 }
 
                 joinedGameName = gameNames.get(gameNum-1);
-
+                joinedGameColor = playerColor; // May want to change to TeamColor type
                 state = JOINED_GAME;
 
-                return SET_TEXT_COLOR_GREEN + "Successfully joined \""+joinedGameName+"\" as " + playerColor + "\n";
+                return SET_TEXT_COLOR_GREEN + "Successfully joined \""+joinedGameName+"\" as " + joinedGameColor + "\n";
 
             } catch (ClientBadRequestException ex) {
                 return SET_TEXT_COLOR_RED + "Make sure to enter a valid game number and player color.";
@@ -306,7 +313,7 @@ public class PostLoginClient implements ChessClient {
         }
     }
 
-    private String drawBoardWhite(ChessBoard board) {
+    public static String drawBoardWhite(ChessBoard board) {
 
         final int top = 9;
         final int bottom = 0;
@@ -359,7 +366,7 @@ public class PostLoginClient implements ChessClient {
         return out.toString();
     }
 
-    private String drawBoardBlack(ChessBoard board) {
+    public static String drawBoardBlack(ChessBoard board) {
 
         StringBuilder out = new StringBuilder();
         // i: rows, j: cols
@@ -407,7 +414,7 @@ public class PostLoginClient implements ChessClient {
         return out.toString();
     }
 
-    private void printMainBoard(ChessBoard board, int row, int col, StringBuilder out) {
+    private static void printMainBoard(ChessBoard board, int row, int col, StringBuilder out) {
 
         if ((row%2 == 1 && col%2 == 1) || (row%2 == 0 && col%2 == 0)) {
             out.append(SET_BG_COLOR_BROWN);
@@ -433,7 +440,7 @@ public class PostLoginClient implements ChessClient {
         }
     }
 
-    private String getPieceUnicode(ChessGame.TeamColor color, ChessPiece.PieceType type) {
+    private static String getPieceUnicode(ChessGame.TeamColor color, ChessPiece.PieceType type) {
         if (color == ChessGame.TeamColor.WHITE) {
             return switch (type) {
                 case KING -> WHITE_KING;
