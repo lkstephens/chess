@@ -295,6 +295,8 @@ public class PostLoginClient implements ChessClient {
         try {
             ListGamesResult listGames = server.listGames(authToken);
             gameIDs.clear();
+            chessGames.clear();
+            gameNames.clear();
             var games = listGames.games();
 
             if (!games.isEmpty()) {

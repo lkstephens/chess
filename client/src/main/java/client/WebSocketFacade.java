@@ -37,7 +37,8 @@ public class WebSocketFacade extends Endpoint {
             });
 
         } catch (DeploymentException | IOException | URISyntaxException ex) {
-            System.out.print("Error setting up WebSocket <-- [CHANGEME]");
+            System.out.print("Error setting up WebSocket");
+            ex.printStackTrace();
         }
     }
 

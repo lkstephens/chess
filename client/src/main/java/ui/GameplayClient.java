@@ -6,6 +6,7 @@ import chess.ChessMove;
 import chess.ChessPosition;
 import client.ServerFacade;
 import client.ServerMessageObserver;
+import client.WebSocketFacade;
 import websocket.messages.ServerMessage;
 
 import java.util.*;
@@ -20,7 +21,10 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
     private final String gameName;
     private ChessBoard board;
     private final String clientColor;
+
     private final ServerFacade server;
+    private final WebSocketFacade webSocket;
+
     private final String authToken;
 
     public GameplayClient(ChessGame game, String gameName, String color, ServerFacade server, String authToken) {
@@ -29,7 +33,9 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
         board = game.getBoard();
         clientColor = color;
         this.server = server;
+        webSocket = new WebSocketFacade(this.server.getServerURL(), this);
         this.authToken = authToken;
+
     }
 
     @Override

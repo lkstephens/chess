@@ -5,6 +5,7 @@ import dataaccess.*;
 import datamodel.*;
 import io.javalin.*;
 import io.javalin.http.Context;
+import server.websocket.WebSocketHandler;
 import service.*;
 
 import java.util.Map;
@@ -14,6 +15,7 @@ public class Server {
     private final Javalin server;
     private final UserService userService;
     private final GameService gameService;
+    private final WebSocketHandler websocketHandler;
 
     public Server() {
 
@@ -33,6 +35,7 @@ public class Server {
         gameService = new GameService(gameDAO, authDAO);
 
         server = Javalin.create(config -> config.staticFiles.add("web"));
+        websocketHandler = new WebSocketHandler();
 
         // Endpoints and handlers
         server.delete("db", this::clear);
@@ -42,6 +45,11 @@ public class Server {
         server.get("game", this::listGames);
         server.post("game", this::createGame);
         server.put("game", this::joinGame);
+        server.ws("/ws", ws -> {
+            ws.onConnect(websocketHandler);
+            ws.onMessage(websocketHandler);
+            ws.onClose(websocketHandler);
+        });
 
     }
 

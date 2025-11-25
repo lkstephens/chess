@@ -18,6 +18,10 @@ public class ServerFacade {
         serverURL = url;
     }
 
+    public String getServerURL() {
+        return serverURL;
+    }
+
     public void clear() throws Exception {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverURL + "/db"))
