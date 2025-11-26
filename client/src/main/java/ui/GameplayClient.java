@@ -7,6 +7,7 @@ import chess.ChessPosition;
 import client.ServerFacade;
 import client.ServerMessageObserver;
 import client.WebSocketFacade;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.util.*;
@@ -17,25 +18,30 @@ import static ui.EscapeSequences.SET_TEXT_COLOR_MAGENTA;
 
 public class GameplayClient implements ChessClient, ServerMessageObserver {
 
+    private int gameID;
     private ChessGame game;
     private final String gameName;
     private ChessBoard board;
     private final String clientColor;
+    private final String authToken;
 
     private final ServerFacade server;
     private final WebSocketFacade webSocket;
 
-    private final String authToken;
 
-    public GameplayClient(ChessGame game, String gameName, String color, ServerFacade server, String authToken) {
+
+    public GameplayClient(int gameID, ChessGame game, String gameName, String color, ServerFacade server, String authToken) {
+        this.gameID = gameID;
         this.game = game;
         this.gameName = gameName;
         board = game.getBoard();
         clientColor = color;
         this.server = server;
-        webSocket = new WebSocketFacade(this.server.getServerURL(), this);
         this.authToken = authToken;
 
+        webSocket = new WebSocketFacade(this.server.getServerURL(), this);
+
+        webSocket.connect(this.authToken, gameID);
     }
 
     @Override
@@ -193,7 +199,13 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
 
     @Override
     public void notify(ServerMessage message) {
-        System.out.println(message);
+        switch (message.getServerMessageType()) {
+            case NOTIFICATION:
+                NotificationMessage notification = (NotificationMessage) message;
+                System.out.println(SET_TEXT_COLOR_BLUE + notification.getMessage() + RESET_TEXT_COLOR);
+                printPrompt();
+                break;
+        }
     }
 
 }

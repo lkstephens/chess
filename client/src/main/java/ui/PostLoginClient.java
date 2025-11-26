@@ -26,6 +26,7 @@ public class PostLoginClient implements ChessClient {
     private final ArrayList<ChessGame> chessGames = new ArrayList<>();
     private final ArrayList<String> gameNames = new ArrayList<>();
 
+    private int joinedGameID;
     private String joinedGameName;
     private ChessGame joinedGame;
     private String joinedGameColor;
@@ -56,7 +57,7 @@ public class PostLoginClient implements ChessClient {
                 // Joining a game
                 if (state == JOINED_GAME) {
                     GameplayClient gameplayClient =
-                        new GameplayClient(joinedGame, joinedGameName, joinedGameColor, server, authToken);
+                        new GameplayClient(joinedGameID, joinedGame, joinedGameName, joinedGameColor, server, authToken);
                     String gameplayResult = gameplayClient.run();
 
                     if (!gameplayResult.equals("leave")){
@@ -217,6 +218,7 @@ public class PostLoginClient implements ChessClient {
             try {
                 server.joinGame(authToken, request);
 
+                joinedGameID = gameID;
                 joinedGame = chessGames.get(gameNum-1);
                 joinedGameName = gameName;
                 joinedGameColor = playerColor; // May want to change to TeamColor type

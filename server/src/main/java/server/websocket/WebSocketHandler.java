@@ -60,7 +60,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         int gameID = command.getGameID();
         connections.add(gameID, session);
         var message = String.format("%s has joined the game as.", username);
-        var notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-        connections.broadcast(gameID, null, notificationMessage);
+        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        connections.broadcast(gameID, null, notification);
     }
 }
