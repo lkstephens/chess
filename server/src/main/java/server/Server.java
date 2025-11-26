@@ -15,7 +15,7 @@ public class Server {
     private final Javalin server;
     private final UserService userService;
     private final GameService gameService;
-    private final WebSocketHandler websocketHandler;
+    private final WebSocketHandler webSocketHandler;
 
     public Server() {
 
@@ -35,7 +35,7 @@ public class Server {
         gameService = new GameService(gameDAO, authDAO);
 
         server = Javalin.create(config -> config.staticFiles.add("web"));
-        websocketHandler = new WebSocketHandler();
+        webSocketHandler = new WebSocketHandler(userService, gameService);
 
         // Endpoints and handlers
         server.delete("db", this::clear);
@@ -46,9 +46,9 @@ public class Server {
         server.post("game", this::createGame);
         server.put("game", this::joinGame);
         server.ws("/ws", ws -> {
-            ws.onConnect(websocketHandler);
-            ws.onMessage(websocketHandler);
-            ws.onClose(websocketHandler);
+            ws.onConnect(webSocketHandler);
+            ws.onMessage(webSocketHandler);
+            ws.onClose(webSocketHandler);
         });
 
     }

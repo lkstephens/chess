@@ -208,14 +208,17 @@ public class PostLoginClient implements ChessClient {
             }
 
             int gameID = gameIDs.get(gameNum - 1);
+            String gameName = gameNames.get(gameNum - 1);
+
             String playerColor = params[1].toUpperCase();
+
             JoinGameRequest request = new JoinGameRequest(playerColor, gameID);
 
             try {
                 server.joinGame(authToken, request);
 
                 joinedGame = chessGames.get(gameNum-1);
-                joinedGameName = gameNames.get(gameNum-1);
+                joinedGameName = gameName;
                 joinedGameColor = playerColor; // May want to change to TeamColor type
 
                 state = JOINED_GAME;

@@ -113,7 +113,17 @@ public class UserService {
         }
     }
 
+    public String getUsername(String authToken) throws DataAccessException {
+        try {
+            AuthData authData = authDAO.getAuth(authToken);
+            return authData.username();
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Error: database access error", e);
+        }
+    }
+
     public static String generateToken() {
         return UUID.randomUUID().toString();
     }
+
 }

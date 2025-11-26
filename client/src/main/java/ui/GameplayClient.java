@@ -193,7 +193,7 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
 
     @Override
     public void notify(ServerMessage message) {
-
+        System.out.println(message);
     }
 
 }
