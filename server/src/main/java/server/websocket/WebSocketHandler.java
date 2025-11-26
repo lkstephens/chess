@@ -43,7 +43,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             String username = userService.getUsername(command.getAuthToken());
 
             switch (command.getCommandType()) {
-                case CONNECT -> connect(session, username, (ConnectCommand) command);
+                case CONNECT -> {
+                    ConnectCommand connectCommand = serializer.fromJson(ctx.message(), ConnectCommand.class);
+                    connect(session, username, connectCommand);
+                }
             }
 
         } catch (Exception ex) {
@@ -59,7 +62,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     private void connect(Session session, String username, ConnectCommand command) throws IOException {
         int gameID = command.getGameID();
         connections.add(gameID, session);
-        var message = String.format("%s has joined the game as.", username);
+        var message = String.format("%s has joined the game as [COLOR].", username);
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(gameID, null, notification);
     }
