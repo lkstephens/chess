@@ -203,6 +203,7 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
         switch (message.getServerMessageType()) {
             case NOTIFICATION:
                 NotificationMessage notification = (NotificationMessage) message;
+                System.out.println();
                 System.out.println(SET_TEXT_COLOR_BLUE + notification.getMessage() + RESET_TEXT_COLOR);
                 printPrompt();
                 break;
@@ -210,11 +211,15 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
                 LoadGameMessage loadGameMessage = (LoadGameMessage) message;
                 var game = loadGameMessage.getGame();
                 var board = game.getBoard();
+                System.out.print("\n\n");
                 if (clientColor.equals("WHITE")) {
-                    System.out.print(PostLoginClient.drawBoardWhite(board));
+                    System.out.println(PostLoginClient.drawBoardWhite(board));
                 } else {
-                    System.out.print(PostLoginClient.drawBoardBlack(board));
+                    System.out.println(PostLoginClient.drawBoardBlack(board));
                 }
+                System.out.print(help());
+                printPrompt();
+                break;
             case ERROR:
                 System.out.print("ErrorMessage (to be implemented)");
         }

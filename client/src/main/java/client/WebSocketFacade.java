@@ -17,6 +17,7 @@ public class WebSocketFacade extends Endpoint {
 
     Session session;
     private ServerMessageObserver observer;
+    private final Gson serializer = new Gson();
 
     public WebSocketFacade(String url, ServerMessageObserver observer) {
         try {
@@ -32,6 +33,20 @@ public class WebSocketFacade extends Endpoint {
                 @Override
                 public void onMessage(String message) {
                     ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+
+                    switch (serverMessage.getServerMessageType()) {
+                        case LOAD_GAME:
+                            serverMessage = serializer.fromJson(message, LoadGameMessage.class);
+                            break;
+                        case NOTIFICATION:
+                            serverMessage = serializer.fromJson(message, NotificationMessage.class);
+                            break;
+                        case ERROR:
+                            serverMessage = serializer.fromJson(message, ErrorMessage.class);
+                            break;
+                        default:
+                            System.err.println("Unknown ServerMessage Type: " + serverMessage.getServerMessageType());
+                    }
                     observer.notify(serverMessage);
                 }
             });
