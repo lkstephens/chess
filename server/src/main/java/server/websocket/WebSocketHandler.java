@@ -1,6 +1,7 @@
 package server.websocket;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import datamodel.GameData;
 import io.javalin.websocket.*;
 import org.eclipse.jetty.websocket.api.Session;
@@ -11,9 +12,7 @@ import service.GameService;
 import service.UserService;
 import websocket.commands.ConnectCommand;
 import websocket.commands.UserGameCommand;
-import websocket.messages.LoadGameMessage;
-import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
+import websocket.messages.*;
 
 import java.io.IOException;
 
@@ -89,8 +88,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
             connections.broadcast(gameID, session, notification);
 
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+        } catch (BadRequestException | DataAccessException ex) {
+            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                    "Error: failed to connect to chess game. Please enter the number of an existing game.");
+            session.getRemote().sendString(serializer.toJson(errorMessage));
         }
     }
 }

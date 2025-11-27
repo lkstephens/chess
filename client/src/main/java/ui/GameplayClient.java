@@ -7,6 +7,7 @@ import chess.ChessPosition;
 import client.ServerFacade;
 import client.ServerMessageObserver;
 import client.WebSocketFacade;
+import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
@@ -221,7 +222,11 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
                 printPrompt();
                 break;
             case ERROR:
-                System.out.print("ErrorMessage (to be implemented)");
+                ErrorMessage errorMessage = (ErrorMessage) message;
+                System.out.println();
+                System.out.println(SET_TEXT_COLOR_RED + errorMessage.getErrorMessage() + RESET_TEXT_COLOR);
+                printPrompt();
+                break;
         }
     }
 
