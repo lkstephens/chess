@@ -1,5 +1,6 @@
 package server.websocket;
 
+import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.ServerMessage;
 
@@ -8,7 +9,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public class ConnectionManager {
-    public final HashMap<Integer, HashSet<Session>> connections = new HashMap<>();
+
+    private HashMap<Integer, HashSet<Session>> connections = new HashMap<>();
 
     public void add(int gameID, Session session) {
         HashSet<Session> sessions = connections.get(gameID);
@@ -29,7 +31,8 @@ public class ConnectionManager {
     }
 
     public void broadcast(int gameID, Session excludedSession, ServerMessage serverMessage) throws IOException {
-        String msg = serverMessage.toString();
+        var serializer = new Gson();
+        String msg = serializer.toJson(serverMessage);
         var sessions = connections.get(gameID);
         if (sessions != null) {
             for (Session s : sessions) {

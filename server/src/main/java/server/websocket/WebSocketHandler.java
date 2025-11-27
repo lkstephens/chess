@@ -1,14 +1,17 @@
 package server.websocket;
 
 import com.google.gson.Gson;
+import datamodel.GameData;
 import io.javalin.websocket.*;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
 
+import service.BadRequestException;
 import service.GameService;
 import service.UserService;
 import websocket.commands.ConnectCommand;
 import websocket.commands.UserGameCommand;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
@@ -18,6 +21,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private final UserService userService;
     private final GameService gameService;
+    private final Gson serializer = new Gson();
 
     public WebSocketHandler(UserService userService, GameService gameService) {
         this.userService = userService;
@@ -35,7 +39,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     @Override
     public void handleMessage(@NotNull WsMessageContext ctx) throws Exception {
         Session session = ctx.session;
-        var serializer = new Gson();
 
         try {
 
@@ -61,9 +64,33 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private void connect(Session session, String username, ConnectCommand command) throws IOException {
         int gameID = command.getGameID();
-        connections.add(gameID, session);
-        var message = String.format("%s has joined the game as [COLOR].", username);
-        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-        connections.broadcast(gameID, null, notification);
+        try {
+            GameData gameData = gameService.getGame(gameID);
+
+            if (gameData == null) {
+                throw new BadRequestException("Error: game not found");
+            }
+
+            String playerColor = "OBSERVER";
+            if (username.equals(gameData.whiteUsername())) {
+                playerColor = "WHITE";
+            } else if (username.equals(gameData.blackUsername())) {
+                playerColor = "BLACK";
+            }
+
+            connections.add(gameID, session);
+
+            LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,
+                    gameData.game());
+            session.getRemote().sendString(serializer.toJson(loadGameMessage));
+
+            var message = String.format("%s has joined the game as %s.", username, playerColor);
+            var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+
+            connections.broadcast(gameID, session, notification);
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 }

@@ -110,4 +110,12 @@ public class GameService {
             throw new DataAccessException("Error: database access error", e);
         }
     }
+
+    public GameData getGame(int gameID) throws DataAccessException {
+        try {
+            return gameDAO.getGame(gameID);
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Error: database access error", e);
+        }
+    }
 }

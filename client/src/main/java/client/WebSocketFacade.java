@@ -52,7 +52,7 @@ public class WebSocketFacade extends Endpoint {
             var connectCommand = new ConnectCommand(CONNECT, authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(connectCommand));
         } catch (IOException ex) {
-            System.out.println("connect ws error");
+            System.out.println("Error connecting to ws");
         }
     }
 

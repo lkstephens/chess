@@ -7,6 +7,7 @@ import chess.ChessPosition;
 import client.ServerFacade;
 import client.ServerMessageObserver;
 import client.WebSocketFacade;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
@@ -205,6 +206,17 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
                 System.out.println(SET_TEXT_COLOR_BLUE + notification.getMessage() + RESET_TEXT_COLOR);
                 printPrompt();
                 break;
+            case LOAD_GAME:
+                LoadGameMessage loadGameMessage = (LoadGameMessage) message;
+                var game = loadGameMessage.getGame();
+                var board = game.getBoard();
+                if (clientColor.equals("WHITE")) {
+                    System.out.print(PostLoginClient.drawBoardWhite(board));
+                } else {
+                    System.out.print(PostLoginClient.drawBoardBlack(board));
+                }
+            case ERROR:
+                System.out.print("ErrorMessage (to be implemented)");
         }
     }
 
