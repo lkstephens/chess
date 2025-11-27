@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import service.BadRequestException;
 import service.GameService;
+import service.UnauthorizedException;
 import service.UserService;
 import websocket.commands.ConnectCommand;
 import websocket.commands.UserGameCommand;
@@ -36,7 +37,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     @Override
-    public void handleMessage(@NotNull WsMessageContext ctx) throws Exception {
+    public void handleMessage(@NotNull WsMessageContext ctx) throws IOException {
         Session session = ctx.session;
 
         try {
@@ -51,8 +52,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 }
             }
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (UnauthorizedException ex) {
+            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                    "Error: user not authorized.");
+            session.getRemote().sendString(serializer.toJson(errorMessage));
+        } catch (DataAccessException ex) {
+            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                    "Error: could not access chess game.");
+            session.getRemote().sendString(serializer.toJson(errorMessage));
         }
     }
 

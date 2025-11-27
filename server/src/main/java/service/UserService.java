@@ -113,9 +113,12 @@ public class UserService {
         }
     }
 
-    public String getUsername(String authToken) throws DataAccessException {
+    public String getUsername(String authToken) throws DataAccessException, UnauthorizedException {
         try {
             AuthData authData = authDAO.getAuth(authToken);
+            if (authData == null) {
+                throw new UnauthorizedException("Error: unauthorized.");
+            }
             return authData.username();
         } catch (DataAccessException e) {
             throw new DataAccessException("Error: database access error", e);
