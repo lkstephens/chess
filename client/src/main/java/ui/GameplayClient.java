@@ -216,7 +216,6 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
                 NotificationMessage notification = (NotificationMessage) message;
                 System.out.println();
                 System.out.println(SET_TEXT_COLOR_BLUE + notification.getMessage() + RESET_TEXT_COLOR);
-                System.out.println();
                 break;
             case LOAD_GAME:
                 LoadGameMessage loadGameMessage = (LoadGameMessage) message;
@@ -233,7 +232,6 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
                 ErrorMessage errorMessage = (ErrorMessage) message;
                 System.out.println();
                 System.out.println(SET_TEXT_COLOR_RED + errorMessage.getErrorMessage() + RESET_TEXT_COLOR);
-                System.out.println();
                 break;
         }
         printPrompt();
