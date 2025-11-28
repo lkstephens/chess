@@ -165,7 +165,9 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
                 ChessPosition startPosition = convertToPosition(params[0]);
                 ChessPosition endPosition = convertToPosition(params[1]);
 
-                ChessMove move = new ChessMove(startPosition, endPosition);
+                ChessMove move = new ChessMove(startPosition, endPosition, null);
+                webSocket.makeMove(authToken, gameID, move);
+                return "\n";
             }
         }
         return SET_TEXT_COLOR_RED + "Expected: <a-h1-8> <a-h1-8>";

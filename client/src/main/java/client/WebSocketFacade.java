@@ -68,7 +68,7 @@ public class WebSocketFacade extends Endpoint {
             var connectCommand = new ConnectCommand(CONNECT, authToken, gameID);
             this.session.getBasicRemote().sendText(serializer.toJson(connectCommand));
         } catch (IOException ex) {
-            System.out.println("Error connecting to ws"); // <-- CHANGEME
+            System.out.println("Connection lost"); // <-- CHANGEME
         }
     }
 
@@ -77,7 +77,7 @@ public class WebSocketFacade extends Endpoint {
             var makeMoveCommand = new MakeMoveCommand(MAKE_MOVE, authToken, gameID, move);
             this.session.getBasicRemote().sendText(serializer.toJson(makeMoveCommand));
         } catch (IOException ex) {
-            System.out.println("Error sending move"); // <-- CHANGME
+            System.out.println("Connection lost"); // <-- CHANGME?
         }
     }
 

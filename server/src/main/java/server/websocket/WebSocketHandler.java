@@ -1,9 +1,6 @@
 package server.websocket;
 
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.ChessPosition;
-import chess.InvalidMoveException;
+import chess.*;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import datamodel.GameData;
@@ -11,17 +8,11 @@ import io.javalin.websocket.*;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
 
-import service.BadRequestException;
-import service.GameService;
-import service.UnauthorizedException;
-import service.UserService;
-import websocket.commands.ConnectCommand;
-import websocket.commands.MakeMoveCommand;
-import websocket.commands.UserGameCommand;
+import service.*;
+import websocket.commands.*;
 import websocket.messages.*;
 
 import java.io.IOException;
-import java.util.Collection;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
@@ -137,20 +128,30 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             if (playerColor == teamTurn) {
 
                 ChessMove move = command.getMove();
-                game.makeMove(move);
+                ChessPiece piece = game.getBoard().getPiece(move.getStartPosition());
+
+                if (piece != null) {
+                    game.makeMove(move);
+                } else {
+                    throw new BadRequestException("Error: must have an piece at the start position to make a move");
+                }
+
                 if (teamTurn == ChessGame.TeamColor.WHITE) {
                     game.setTeamTurn(ChessGame.TeamColor.BLACK);
                 } else {
                     game.setTeamTurn(ChessGame.TeamColor.WHITE);
                 }
 
-                ChessPosition startPosition = move.getStartPosition();
-                ChessPosition endPosition = move.getEndPosition();
-
                 LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
                 connections.broadcast(gameID, null, loadGameMessage);
 
-                var message = String.format("%s moved [piece] from [start] to [end]", username);
+                ChessPosition startPosition = move.getStartPosition();
+                ChessPosition endPosition = move.getEndPosition();
+                String startCoordinate = convertPosToCoordinates(startPosition);
+                String endCoordinate = convertPosToCoordinates(endPosition);
+
+                var message = String.format("%s moved %s from %s to %s",
+                                            username, piece, startCoordinate, endCoordinate);
                 var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
                 connections.broadcast(gameID, session, notification);
 
@@ -158,12 +159,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 throw new UnauthorizedException("Error: it is not your turn");
             }
 
+        } catch (BadRequestException | UnauthorizedException ex) {
+            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                    ex.getMessage());
+            session.getRemote().sendString(serializer.toJson(errorMessage));
         } catch (InvalidMoveException ex) {
             ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                     "Error: Invalid move.");
-            session.getRemote().sendString(serializer.toJson(errorMessage));
-        } catch (UnauthorizedException ex) {
-            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
             session.getRemote().sendString(serializer.toJson(errorMessage));
         } catch (DataAccessException ex) {
             ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
@@ -171,5 +173,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             session.getRemote().sendString(serializer.toJson(errorMessage));
         }
 
+    }
+
+    private String convertPosToCoordinates(ChessPosition pos) {
+        int row = pos.getRow();
+        int colInt = pos.getColumn();
+        char colChar = (char) ('a' + colInt - 1);
+        return colChar + Integer.toString(row);
     }
 }
