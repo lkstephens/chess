@@ -1,5 +1,6 @@
 package client;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 import jakarta.websocket.*;
 
@@ -67,7 +68,16 @@ public class WebSocketFacade extends Endpoint {
             var connectCommand = new ConnectCommand(CONNECT, authToken, gameID);
             this.session.getBasicRemote().sendText(serializer.toJson(connectCommand));
         } catch (IOException ex) {
-            System.out.println("Error connecting to ws");
+            System.out.println("Error connecting to ws"); // <-- CHANGEME
+        }
+    }
+
+    public void makeMove(String authToken, int gameID, ChessMove move) {
+        try {
+            var makeMoveCommand = new MakeMoveCommand(MAKE_MOVE, authToken, gameID, move);
+            this.session.getBasicRemote().sendText(serializer.toJson(makeMoveCommand));
+        } catch (IOException ex) {
+            System.out.println("Error sending move"); // <-- CHANGME
         }
     }
 

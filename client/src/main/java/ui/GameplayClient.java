@@ -160,7 +160,15 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
     }
 
     public String makeMove(String... params) {
-        return "making a move";
+        if (params.length == 2) {
+            if (validateCoordinates(params)) {
+                ChessPosition startPosition = convertToPosition(params[0]);
+                ChessPosition endPosition = convertToPosition(params[1]);
+
+                ChessMove move = new ChessMove(startPosition, endPosition);
+            }
+        }
+        return SET_TEXT_COLOR_RED + "Expected: <a-h1-8> <a-h1-8>";
     }
 
     public String resign(String... params) {
