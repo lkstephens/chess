@@ -131,22 +131,19 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 ChessPiece piece = game.getBoard().getPiece(move.getStartPosition());
 
                 if (piece != null) {
-                    game.makeMove(move);
+                    game.makeMove(move); // This already calls setTeamTurn()
                 } else {
                     throw new BadRequestException("Error: must have an piece at the start position to make a move");
                 }
 
                 gameService.updateGame(gameID, game);
 
-//                if (teamTurn == ChessGame.TeamColor.WHITE) {
-//                    game.setTeamTurn(ChessGame.TeamColor.BLACK);
-//                } else {
-//                    game.setTeamTurn(ChessGame.TeamColor.WHITE);
-//                }
-
+                // Send new board to everyone
                 LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
-                connections.broadcast(gameID, null, loadGameMessage);
+                session.getRemote().sendString(serializer.toJson(loadGameMessage));
+                connections.broadcast(gameID, session, loadGameMessage);
 
+                // Send notification to everyone but the person that made the move
                 ChessPosition startPosition = move.getStartPosition();
                 ChessPosition endPosition = move.getEndPosition();
                 String startCoordinate = convertPosToCoordinates(startPosition);

@@ -48,7 +48,7 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
 
     @Override
     public String run() {
-        System.out.print("\n" + help());
+        //System.out.print("\n" + help());
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -216,7 +216,7 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
                 NotificationMessage notification = (NotificationMessage) message;
                 System.out.println();
                 System.out.println(SET_TEXT_COLOR_BLUE + notification.getMessage() + RESET_TEXT_COLOR);
-                printPrompt();
+                System.out.println();
                 break;
             case LOAD_GAME:
                 LoadGameMessage loadGameMessage = (LoadGameMessage) message;
@@ -228,16 +228,15 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
                 } else {
                     System.out.println(PostLoginClient.drawBoardBlack(board));
                 }
-                System.out.print(help());
-                printPrompt();
                 break;
             case ERROR:
                 ErrorMessage errorMessage = (ErrorMessage) message;
                 System.out.println();
                 System.out.println(SET_TEXT_COLOR_RED + errorMessage.getErrorMessage() + RESET_TEXT_COLOR);
-                printPrompt();
+                System.out.println();
                 break;
         }
+        printPrompt();
     }
 
 }

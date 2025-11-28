@@ -70,25 +70,14 @@ public class ChessPiece implements Cloneable{
 
     @Override
     public String toString() {
-        if (pieceColor == ChessGame.TeamColor.WHITE) {
-            return switch (type) {
-                case KING -> "K";
-                case QUEEN -> "Q";
-                case ROOK -> "R";
-                case BISHOP -> "B";
-                case KNIGHT -> "N";
-                case PAWN -> "P";
-            };
-        } else {
-            return switch (type) {
-                case KING -> "k";
-                case QUEEN -> "q";
-                case ROOK -> "r";
-                case BISHOP -> "b";
-                case KNIGHT -> "n";
-                case PAWN -> "p";
-            };
-        }
+        return switch (type) {
+            case KING -> "KING";
+            case QUEEN -> "QUEEN";
+            case ROOK -> "ROOK";
+            case BISHOP -> "BISHOP";
+            case KNIGHT -> "KNIGHT";
+            case PAWN -> "PAWN";
+        };
     }
 
     @Override
