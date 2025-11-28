@@ -167,7 +167,7 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
 
                 ChessMove move = new ChessMove(startPosition, endPosition, null);
                 webSocket.makeMove(authToken, gameID, move);
-                return "\n";
+                return "";
             }
         }
         return SET_TEXT_COLOR_RED + "Expected: <a-h1-8> <a-h1-8>";
@@ -220,8 +220,8 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
                 break;
             case LOAD_GAME:
                 LoadGameMessage loadGameMessage = (LoadGameMessage) message;
-                var game = loadGameMessage.getGame();
-                var board = game.getBoard();
+                this.game = loadGameMessage.getGame();
+                this.board = game.getBoard();
                 System.out.print("\n\n");
                 if (clientColor.equals("WHITE")) {
                     System.out.println(PostLoginClient.drawBoardWhite(board));

@@ -136,11 +136,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     throw new BadRequestException("Error: must have an piece at the start position to make a move");
                 }
 
-                if (teamTurn == ChessGame.TeamColor.WHITE) {
-                    game.setTeamTurn(ChessGame.TeamColor.BLACK);
-                } else {
-                    game.setTeamTurn(ChessGame.TeamColor.WHITE);
-                }
+                gameService.updateGame(gameID, game);
+
+//                if (teamTurn == ChessGame.TeamColor.WHITE) {
+//                    game.setTeamTurn(ChessGame.TeamColor.BLACK);
+//                } else {
+//                    game.setTeamTurn(ChessGame.TeamColor.WHITE);
+//                }
 
                 LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
                 connections.broadcast(gameID, null, loadGameMessage);

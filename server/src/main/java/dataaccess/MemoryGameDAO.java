@@ -46,7 +46,7 @@ public class MemoryGameDAO implements GameDAO{
     }
 
     @Override
-    public void updateGame(int gameID, String username, String playerColor) throws DataAccessException {
+    public void updateGameUsers(int gameID, String username, String playerColor) throws DataAccessException {
         try {
             // Write over previous game data with a new record
             GameData oldGameData = gameDataTreeMap.get(gameID);
@@ -60,6 +60,18 @@ public class MemoryGameDAO implements GameDAO{
                         gameID, oldGameData.whiteUsername(), username, oldGameData.gameName(), oldGameData.game()
                 );
             }
+            gameDataTreeMap.put(gameID, newGameData);
+        } catch (Exception e) {
+            throw new DataAccessException("Error: data access error (TreeMap)", e);
+        }
+    }
+
+    @Override
+    public void updateGame(int gameID, ChessGame game) throws DataAccessException {
+        try {
+            GameData oldGameData = gameDataTreeMap.get(gameID);
+            GameData newGameData = new GameData(oldGameData.gameID(), oldGameData.whiteUsername(),
+                                                oldGameData.blackUsername(), oldGameData.gameName(), game);
             gameDataTreeMap.put(gameID, newGameData);
         } catch (Exception e) {
             throw new DataAccessException("Error: data access error (TreeMap)", e);

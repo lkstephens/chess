@@ -73,7 +73,7 @@ public class SQLGameDAO implements GameDAO{
     }
 
     @Override
-    public void updateGame(int gameID, String username, String playerColor)
+    public void updateGameUsers(int gameID, String username, String playerColor)
         throws DataAccessException {
 
         try (Connection conn = DatabaseManager.getConnection()) {
@@ -87,6 +87,27 @@ public class SQLGameDAO implements GameDAO{
 
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 ps.setString(1, username);
+                ps.setInt(2, gameID);
+
+                int rowsUpdated = ps.executeUpdate();
+
+                if (rowsUpdated == 0) {
+                    throw new DataAccessException("Error: no rows updated");
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: failed to update game data");
+        }
+    }
+
+    @Override
+    public void updateGame(int gameID, ChessGame game) throws DataAccessException {
+
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "UPDATE game_data SET game = ? where gameID = ?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                String gameJson = new Gson().toJson(game);
+                ps.setString(1, gameJson);
                 ps.setInt(2, gameID);
 
                 int rowsUpdated = ps.executeUpdate();

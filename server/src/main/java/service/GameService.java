@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
@@ -9,6 +10,8 @@ import datamodel.JoinGameRequest;
 import datamodel.ListGamesResult;
 import datamodel.AuthData;
 import datamodel.GameData;
+
+import javax.xml.crypto.Data;
 
 public class GameService {
 
@@ -103,9 +106,22 @@ public class GameService {
                 throw new UnauthorizedException("Error: unauthorized");
             } else {
                 String username = authData.username();
-                gameDAO.updateGame(gameID, username, playerColor);
+                gameDAO.updateGameUsers(gameID, username, playerColor);
 
             }
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Error: database access error", e);
+        }
+    }
+
+    public void updateGame(int gameID, ChessGame game) throws BadRequestException, DataAccessException {
+        try {
+            GameData gameData = gameDAO.getGame(gameID);
+            if (gameData == null) {
+                throw new BadRequestException("Error: game does not exist");
+            }
+            gameDAO.updateGame(gameID, game);
+
         } catch (DataAccessException e) {
             throw new DataAccessException("Error: database access error", e);
         }
