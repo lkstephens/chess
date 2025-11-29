@@ -90,6 +90,16 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
+    public void closeSession() {
+        try {
+            if (this.session != null && this.session.isOpen()) {
+                this.session.close();
+            }
+        } catch (IOException ex) {
+            System.out.println("Error: could not close ws session");
+        }
+    }
+
 
 
 

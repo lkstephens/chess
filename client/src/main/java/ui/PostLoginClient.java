@@ -249,7 +249,9 @@ public class PostLoginClient implements ChessClient {
 
         if (params.length == 1 && isInteger(params[0])) {
 
+
             int gameNum = Integer.parseInt(params[0]);
+            int gameID = gameIDs.get(gameNum - 1);
 
             if (gameNum < 1 || gameNum > gameIDs.size()) {
                 return SET_TEXT_COLOR_RED + "Game does not exist. Try a different number.";
@@ -259,9 +261,13 @@ public class PostLoginClient implements ChessClient {
             var board = game.getBoard();
             var gameName = gameNames.get(gameNum-1);
 
-            System.out.print(drawBoardWhite(board));
+//            System.out.print(drawBoardWhite(board));
+//
+//            return SET_TEXT_COLOR_BLUE + "Observing \"" + gameName + "\"\n";
+            var observerClient = new ObserverClient(gameID, game, gameName, authToken, server);
+            observerClient.run();
 
-            return SET_TEXT_COLOR_BLUE + "Observing \"" + gameName + "\"\n";
+            return "";
         }
 
         return SET_TEXT_COLOR_RED + "Expected: <#>";

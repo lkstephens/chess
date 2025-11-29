@@ -221,8 +221,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             } else {
                 throw new UnauthorizedException("Error: only players can leave");
             }
-
+            // Update game
             gameService.updateGameUsers(gameID, null, playerColor);
+
+            // Broadcast leave message
+            var leaveNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                    String.format("%s has left the game.", username));
+            connections.broadcast(gameID, session, leaveNotification);
+
         } catch (BadRequestException | UnauthorizedException | DataAccessException ex) {
             ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
             session.getRemote().sendString(serializer.toJson(errorMessage));
