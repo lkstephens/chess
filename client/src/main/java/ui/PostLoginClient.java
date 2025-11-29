@@ -57,14 +57,19 @@ public class PostLoginClient implements ChessClient {
                         new GameplayClient(joinedGameData, joinedGameColor, server, authToken);
                     String gameplayResult = gameplayClient.run();
 
-                    if (!gameplayResult.equals("leave")){
+                    if (!gameplayResult.equals("leave") && !gameplayResult.equals("gameover")){
                         System.out.println(SET_TEXT_COLOR_RED + "Error: Internal error.");
                         System.exit(1);
                     } else {
                         state = LOGGED_IN;
                     }
 
-                    System.out.println(SET_TEXT_COLOR_GREEN + "Successfully left " + joinedGameData.gameName());
+                    if (gameplayResult.equals("gameover")){
+                        System.out.println(SET_TEXT_COLOR_GREEN + "Game over. Returning to menu.");
+                    } else {
+                        System.out.println(SET_TEXT_COLOR_GREEN + "Successfully left " + joinedGameData.gameName());
+                    }
+
                     System.out.print("\n" + help());
                 }
 

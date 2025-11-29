@@ -66,7 +66,7 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
                 System.out.print(msg);
             }
         }
-        return result;
+        return result.equals("leave") ? "leave" : "gameover";
     }
 
     @Override
