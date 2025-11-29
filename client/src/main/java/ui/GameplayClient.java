@@ -7,6 +7,7 @@ import chess.ChessPosition;
 import client.ServerFacade;
 import client.ServerMessageObserver;
 import client.WebSocketFacade;
+import datamodel.GameData;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -32,10 +33,10 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
 
 
 
-    public GameplayClient(int gameID, ChessGame game, String gameName, ChessGame.TeamColor color, ServerFacade server, String authToken) {
-        this.gameID = gameID;
-        this.game = game;
-        this.gameName = gameName;
+    public GameplayClient(GameData gameData, ChessGame.TeamColor color, ServerFacade server, String authToken) {
+        this.gameID = gameData.gameID();
+        this.game = gameData.game();
+        this.gameName = gameData.gameName();
         board = game.getBoard();
         clientColor = color;
         this.server = server;

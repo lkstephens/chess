@@ -5,6 +5,7 @@ import chess.ChessGame;
 import client.ServerFacade;
 import client.ServerMessageObserver;
 import client.WebSocketFacade;
+import datamodel.GameData;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -17,20 +18,20 @@ import static ui.EscapeSequences.*;
 
 public class ObserverClient implements ChessClient, ServerMessageObserver {
 
-    private int gameID;
+    private final int gameID;
     private ChessGame gameObserving;
     private ChessBoard boardObserving;
-    private String gameName;
-    private String authToken;
+    private final String gameName;
+    private final String authToken;
 
     private final ServerFacade server;
     private final WebSocketFacade webSocket;
 
-    public ObserverClient(int gameID, ChessGame game, String gameName, String authToken, ServerFacade server) {
-        this.gameID = gameID;
-        gameObserving = game;
+    public ObserverClient(GameData gameData, String authToken, ServerFacade server) {
+        this.gameID = gameData.gameID();
+        gameObserving = gameData.game();
         boardObserving = gameObserving.getBoard();
-        this.gameName = gameName;
+        this.gameName = gameData.gameName();
         this.authToken = authToken;
         this.server = server;
         webSocket = new WebSocketFacade(this.server.getServerURL(), this);
@@ -79,10 +80,11 @@ public class ObserverClient implements ChessClient, ServerMessageObserver {
         String cmd = (tokens.length > 0) ? tokens[0] : "help";
         String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
 
-        return switch (cmd) {
-            case "leave" -> leave(params);
-            default -> "\n" + help();
-        };
+        if (cmd.equals("leave")) {
+            return leave(params);
+        } else {
+            return "\n" + help();
+        }
     }
 
     public String leave(String... params) {
