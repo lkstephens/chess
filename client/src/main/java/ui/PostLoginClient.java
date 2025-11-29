@@ -221,17 +221,10 @@ public class PostLoginClient implements ChessClient {
                 joinedGameID = gameID;
                 joinedGame = chessGames.get(gameNum-1);
                 joinedGameName = gameName;
-                joinedGameColor = playerColor; // May want to change to TeamColor type
+                joinedGameColor = playerColor;
 
                 state = JOINED_GAME;
 
-//                if (playerColor.equals("WHITE")) {
-//                    System.out.print(drawBoardWhite(joinedGame.getBoard()));
-//                } else {
-//                    System.out.print(drawBoardBlack(joinedGame.getBoard()));
-//                }
-
-//                return SET_TEXT_COLOR_GREEN + "Successfully joined \""+joinedGameName+"\" as " + joinedGameColor + "\n";
                 return "\n";
 
             } catch (ClientBadRequestException ex) {
