@@ -229,6 +229,11 @@ public class ChessGame {
         return board;
     }
 
+    public boolean gameIsOver() {
+        return isInCheckmate(TeamColor.WHITE) || isInCheckmate(TeamColor.BLACK) ||
+                isInStalemate(TeamColor.WHITE) || isInStalemate(TeamColor.BLACK);
+    }
+
     @Override
     public String toString() {
         return "ChessGame{" +

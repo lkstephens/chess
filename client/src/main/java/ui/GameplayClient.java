@@ -179,6 +179,7 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
     public String leave(String... params) {
         if (params.length == 0) {
             webSocket.leave(authToken, gameID);
+            webSocket.closeSession();
             return "leave";
         }
         return SET_TEXT_COLOR_RED + "Expected no parameters for \"leave\"";

@@ -135,6 +135,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 throw new UnauthorizedException("Error: only players can make a move");
             }
 
+            if (game.gameIsOver()) {
+                throw new BadRequestException("Error: Game is over. No more moves can be made");
+            }
+
             if (playerColor == teamTurn) {
 
                 ChessMove move = command.getMove();
@@ -213,23 +217,27 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 throw new DataAccessException("Error: game not found");
             }
 
-            ChessGame.TeamColor playerColor;
+            ChessGame.TeamColor playerColor = null;
             if (username.equals(gameData.whiteUsername())) {
                 playerColor = ChessGame.TeamColor.WHITE;
             } else if (username.equals(gameData.blackUsername())) {
                 playerColor = ChessGame.TeamColor.BLACK;
-            } else {
-                throw new UnauthorizedException("Error: only players can leave");
             }
-            // Update game
-            gameService.updateGameUsers(gameID, null, playerColor);
+
+            // Update game if it's a player
+            if (playerColor != null) {
+                gameService.updateGameUsers(gameID, null, playerColor);
+            }
+
+            // Remove session from connection manager whether it's an observer or player
+            connections.remove(gameID, session);
 
             // Broadcast leave message
             var leaveNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                     String.format("%s has left the game.", username));
             connections.broadcast(gameID, session, leaveNotification);
 
-        } catch (BadRequestException | UnauthorizedException | DataAccessException ex) {
+        } catch (BadRequestException | DataAccessException ex) {
             ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
             session.getRemote().sendString(serializer.toJson(errorMessage));
         }
