@@ -173,7 +173,11 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
     }
 
     public String resign(String... params) {
-        return "resigning";
+        if (params.length == 0) {
+            webSocket.resign(authToken, gameID);
+            return "";
+        }
+        return SET_TEXT_COLOR_RED + "Expected no parameters for \"resign\"";
     }
 
     public String leave(String... params) {

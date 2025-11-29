@@ -14,6 +14,8 @@ public class ChessGame {
 
     private TeamColor teamTurn = TeamColor.WHITE;
     private ChessBoard board;
+    private boolean gameIsOver = false;
+    private TeamColor winningTeamColor = null;
 
     public ChessGame() {
         board = new ChessBoard();
@@ -171,9 +173,14 @@ public class ChessGame {
      */
     public boolean isInCheckmate(TeamColor teamColor) {
         // King must be IN CHECK
+        TeamColor opposingTeamColor = (teamColor == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
         if (isInCheck(teamColor)) {
             // No valid moves?
-            return noValidMoves(teamColor);
+            if (noValidMoves(teamColor)) {
+                gameIsOver = true;
+                winningTeamColor = opposingTeamColor;
+                return true;
+            }
         }
         return false;
     }
@@ -189,7 +196,11 @@ public class ChessGame {
         // King must NOT be IN CHECK
         if (!isInCheck(teamColor)) {
             // No valid moves?
-            return noValidMoves(teamColor);
+            if (noValidMoves(teamColor)) {
+                gameIsOver = true;
+                winningTeamColor = null;
+                return true;
+            }
         }
         return false;
     }
@@ -230,8 +241,16 @@ public class ChessGame {
     }
 
     public boolean gameIsOver() {
-        return isInCheckmate(TeamColor.WHITE) || isInCheckmate(TeamColor.BLACK) ||
-                isInStalemate(TeamColor.WHITE) || isInStalemate(TeamColor.BLACK);
+        return gameIsOver;
+    }
+
+    public void resign(TeamColor playerColor) {
+        gameIsOver = true;
+        winningTeamColor = (playerColor == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
+    }
+
+    public TeamColor getWinningTeamColor() {
+        return winningTeamColor;
     }
 
     @Override

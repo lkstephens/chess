@@ -1,6 +1,7 @@
 package server.websocket;
 
 import chess.*;
+import chess.ChessGame.TeamColor;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import datamodel.GameData;
@@ -54,6 +55,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 case LEAVE -> {
                     LeaveCommand leaveCommand = serializer.fromJson(ctx.message(), LeaveCommand.class);
                     leave(session, username, leaveCommand);
+                }
+                case RESIGN -> {
+                    ResignCommand resignCommand = serializer.fromJson(ctx.message(), ResignCommand.class);
+                    resign(session, username, resignCommand);
                 }
             }
 
@@ -238,6 +243,57 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             connections.broadcast(gameID, session, leaveNotification);
 
         } catch (BadRequestException | DataAccessException ex) {
+            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
+            session.getRemote().sendString(serializer.toJson(errorMessage));
+        }
+    }
+
+    private void resign(Session session, String username, ResignCommand resignCommand) throws IOException {
+        int gameID = resignCommand.getGameID();
+        try {
+            GameData gameData = gameService.getGame(gameID);
+
+            if (gameData == null) {
+                throw new DataAccessException("Error: game not found");
+            }
+
+            ChessGame.TeamColor playerColor = null;
+            if (username.equals(gameData.whiteUsername())) {
+                playerColor = ChessGame.TeamColor.WHITE;
+            } else if (username.equals(gameData.blackUsername())) {
+                playerColor = ChessGame.TeamColor.BLACK;
+            }
+
+            if (playerColor != null) {
+
+                // Resign if the game isn't over
+                var game = gameData.game();
+                if (!game.gameIsOver()) {
+                    game.resign(playerColor);
+                } else {
+                    throw new BadRequestException("The game is over. You may not resign.");
+                }
+
+                // Get the winning team username
+                TeamColor winningTeamColor = game.getWinningTeamColor();
+                String winningUsername;
+                if (winningTeamColor == TeamColor.WHITE) {
+                    winningUsername = gameData.whiteUsername();
+                } else if (winningTeamColor == TeamColor.BLACK) {
+                    winningUsername = gameData.blackUsername();
+                } else {
+                    throw new Exception("Internal server error. Winner not set after resign");
+                }
+
+                var resignNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                        String.format("%s has resigned from the game. %s wins!", username, winningUsername));
+                session.getRemote().sendString(serializer.toJson(resignNotification));
+                connections.broadcast(gameID, session, resignNotification);
+
+            } else {
+                throw new BadRequestException("Error: only players can resign");
+            }
+        } catch (Exception ex) {
             ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
             session.getRemote().sendString(serializer.toJson(errorMessage));
         }
