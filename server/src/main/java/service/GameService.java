@@ -78,12 +78,12 @@ public class GameService {
     public void joinGame(String authToken, JoinGameRequest joinGameRequest)
            throws BadRequestException, AlreadyTakenException, UnauthorizedException, DataAccessException {
 
-        String playerColor = joinGameRequest.playerColor();
+        ChessGame.TeamColor playerColor = joinGameRequest.playerColor();
         int gameID = joinGameRequest.gameID();
 
         // Check for bad request (null, "", wrong color, gameID < 1)
-        if (playerColor == null || playerColor.isEmpty() ||
-            !playerColor.equals("WHITE") && !playerColor.equals("BLACK") ||
+        if (playerColor == null || playerColor.toString().isEmpty() ||
+            !playerColor.toString().equals("WHITE") && !playerColor.toString().equals("BLACK") ||
             gameID < 1) {
             throw new BadRequestException("Error: bad request");
         }
@@ -96,8 +96,8 @@ public class GameService {
                 throw new BadRequestException("Error: game does not exist");
             }
 
-            if ((gameData.whiteUsername() != null && playerColor.equals("WHITE")) ||
-                (gameData.blackUsername() != null && playerColor.equals("BLACK"))) {
+            if ((gameData.whiteUsername() != null && playerColor.toString().equals("WHITE")) ||
+                (gameData.blackUsername() != null && playerColor.toString().equals("BLACK"))) {
                 throw new AlreadyTakenException("Error: already taken");
             }
 
@@ -121,6 +121,20 @@ public class GameService {
                 throw new BadRequestException("Error: game does not exist");
             }
             gameDAO.updateGame(gameID, game);
+
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Error: database access error", e);
+        }
+    }
+
+    public void updateGameUsers(int gameID, String username, ChessGame.TeamColor playerColor)
+                        throws BadRequestException, DataAccessException {
+        try {
+            GameData gameData = gameDAO.getGame(gameID);
+            if (gameData == null) {
+                throw new BadRequestException("Error: game does not exist");
+            }
+            gameDAO.updateGameUsers(gameID, username, playerColor);
 
         } catch (DataAccessException e) {
             throw new DataAccessException("Error: database access error", e);

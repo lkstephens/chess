@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame.TeamColor;
 import datamodel.GameData;
 
 import java.util.List;
@@ -94,8 +95,8 @@ public class GameDAOTests {
     void updateGameSuccess() throws DataAccessException {
 
         gameDAO.createGame("game"); // gameID = 1
-        gameDAO.updateGameUsers(1, "John", "WHITE");
-        gameDAO.updateGameUsers(1, "Jane", "BLACK");
+        gameDAO.updateGameUsers(1, "John", TeamColor.WHITE);
+        gameDAO.updateGameUsers(1, "Jane", TeamColor.BLACK);
 
         var gameData = gameDAO.getGame(1);
 
@@ -104,11 +105,11 @@ public class GameDAOTests {
 
         // Same user for both colors
         gameDAO.createGame("game"); // gameID = 2
-        gameDAO.updateGameUsers(2, "John", "WHITE");
-        assertDoesNotThrow(() -> gameDAO.updateGameUsers(2, "John", "BLACK"));
+        gameDAO.updateGameUsers(2, "John", TeamColor.WHITE);
+        assertDoesNotThrow(() -> gameDAO.updateGameUsers(2, "John", TeamColor.BLACK));
 
         // Removing user from a color
-        assertDoesNotThrow(() -> gameDAO.updateGameUsers(2, null, "WHITE"));
+        assertDoesNotThrow(() -> gameDAO.updateGameUsers(2, null, TeamColor.WHITE));
 
     }
 
@@ -116,9 +117,9 @@ public class GameDAOTests {
     void updateGameFailure() throws DataAccessException {
 
         gameDAO.createGame("game");
-        assertDoesNotThrow(() -> gameDAO.updateGameUsers(1, "John", "WHITE"));
-        assertThrows(DataAccessException.class, () -> gameDAO.updateGameUsers(2, "John", "BLACK"));
-
+        assertDoesNotThrow(() -> gameDAO.updateGameUsers(1, "John", TeamColor.WHITE));
+        assertThrows(DataAccessException.class,
+                () -> gameDAO.updateGameUsers(2, "John", TeamColor.BLACK));
     }
 
     @Test

@@ -24,7 +24,7 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
     private ChessGame game;
     private final String gameName;
     private ChessBoard board;
-    private final String clientColor;
+    private final ChessGame.TeamColor clientColor;
     private final String authToken;
 
     private final ServerFacade server;
@@ -32,7 +32,7 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
 
 
 
-    public GameplayClient(int gameID, ChessGame game, String gameName, String color, ServerFacade server, String authToken) {
+    public GameplayClient(int gameID, ChessGame game, String gameName, ChessGame.TeamColor color, ServerFacade server, String authToken) {
         this.gameID = gameID;
         this.game = game;
         this.gameName = gameName;
@@ -118,7 +118,7 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
     public String redrawBoard(String... params) {
         if (params.length == 0) {
             System.out.println();
-            if (clientColor.equals("WHITE")) {
+            if (clientColor == ChessGame.TeamColor.WHITE) {
                 return PostLoginClient.drawBoardWhite(board);
             } else {
                 return PostLoginClient.drawBoardBlack(board);
@@ -147,7 +147,8 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
 
                     ChessPosition[] highlightPosArray = endPositions.toArray(new ChessPosition[0]);
 
-                    return (clientColor.equals("WHITE")) ? PostLoginClient.drawBoardWhite(board, highlightPosArray) :
+                    return (clientColor == ChessGame.TeamColor.WHITE) ?
+                                                           PostLoginClient.drawBoardWhite(board, highlightPosArray) :
                                                            PostLoginClient.drawBoardBlack(board,highlightPosArray);
 
                 } else {
@@ -178,8 +179,11 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
     }
 
     public String leave(String... params) {
-        // does this need to remove the user from the game?
-        return "leave";
+        if (params.length == 0) {
+            webSocket.leave(authToken, gameID);
+            return "leave";
+        }
+        return SET_TEXT_COLOR_RED + "Expected no parameters for \"leave\"";
     }
 
     private boolean validateCoordinates(String... coordinateArray) {
@@ -222,7 +226,7 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
                 this.game = loadGameMessage.getGame();
                 this.board = game.getBoard();
                 System.out.print("\n\n");
-                if (clientColor.equals("WHITE")) {
+                if (clientColor == ChessGame.TeamColor.WHITE) {
                     System.out.println(PostLoginClient.drawBoardWhite(board));
                 } else {
                     System.out.println(PostLoginClient.drawBoardBlack(board));

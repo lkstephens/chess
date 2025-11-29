@@ -46,12 +46,12 @@ public class MemoryGameDAO implements GameDAO{
     }
 
     @Override
-    public void updateGameUsers(int gameID, String username, String playerColor) throws DataAccessException {
+    public void updateGameUsers(int gameID, String username, ChessGame.TeamColor playerColor) throws DataAccessException {
         try {
             // Write over previous game data with a new record
             GameData oldGameData = gameDataTreeMap.get(gameID);
             GameData newGameData;
-            if (playerColor.equals("WHITE")) {
+            if (playerColor.toString().equals("WHITE")) {
                 newGameData = new GameData(
                         gameID, username, oldGameData.blackUsername(), oldGameData.gameName(), oldGameData.game()
                 );

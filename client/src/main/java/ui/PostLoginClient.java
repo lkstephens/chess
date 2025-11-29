@@ -29,7 +29,7 @@ public class PostLoginClient implements ChessClient {
     private int joinedGameID;
     private String joinedGameName;
     private ChessGame joinedGame;
-    private String joinedGameColor;
+    private ChessGame.TeamColor joinedGameColor;
 
     private State state = LOGGED_IN;
 
@@ -211,7 +211,7 @@ public class PostLoginClient implements ChessClient {
             int gameID = gameIDs.get(gameNum - 1);
             String gameName = gameNames.get(gameNum - 1);
 
-            String playerColor = params[1].toUpperCase();
+            ChessGame.TeamColor playerColor = ChessGame.TeamColor.valueOf(params[1].toUpperCase());
 
             JoinGameRequest request = new JoinGameRequest(playerColor, gameID);
 

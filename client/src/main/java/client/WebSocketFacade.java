@@ -77,7 +77,16 @@ public class WebSocketFacade extends Endpoint {
             var makeMoveCommand = new MakeMoveCommand(MAKE_MOVE, authToken, gameID, move);
             this.session.getBasicRemote().sendText(serializer.toJson(makeMoveCommand));
         } catch (IOException ex) {
-            System.out.println("Connection lost"); // <-- CHANGME?
+            System.out.println("Connection lost"); // <-- CHANGEME?
+        }
+    }
+
+    public void leave(String authToken, int gameID) {
+        try {
+            var leaveCommand = new LeaveCommand(LEAVE, authToken, gameID);
+            this.session.getBasicRemote().sendText(serializer.toJson(leaveCommand));
+        } catch (IOException ex) {
+            System.out.println("Connection lost"); // <-- CHANGEME?
         }
     }
 

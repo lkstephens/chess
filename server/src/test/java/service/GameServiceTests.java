@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame.TeamColor;
 import dataaccess.*;
 import datamodel.*;
 import datamodel.GameData;
@@ -120,13 +121,13 @@ public class GameServiceTests {
         var createGameRequest = new CreateGameRequest("testGame");
         var createGameResult = gameService.createGame(registerResult1.authToken(), createGameRequest);
 
-        var joinGameRequest1 = new JoinGameRequest("WHITE", createGameResult.gameID());
+        var joinGameRequest1 = new JoinGameRequest(TeamColor.WHITE, createGameResult.gameID());
 
         gameService.joinGame(registerResult1.authToken(), joinGameRequest1);
 
         var registerRequest2 = new RegisterRequest("user2", "pass2", "user2@example.com");
         var registerResult2 = userService.register(registerRequest2);
-        var joinGameRequest2 = new JoinGameRequest("BLACK", createGameResult.gameID());
+        var joinGameRequest2 = new JoinGameRequest(TeamColor.BLACK, createGameResult.gameID());
 
         gameService.joinGame(registerResult2.authToken(), joinGameRequest2);
 
@@ -151,24 +152,24 @@ public class GameServiceTests {
         var createGameRequest = new CreateGameRequest("testGame");
         var createGameResult = gameService.createGame(registerResult1.authToken(), createGameRequest);
 
-        var joinGameRequest1 = new JoinGameRequest("WHITE", createGameResult.gameID());
+        var joinGameRequest1 = new JoinGameRequest(TeamColor.WHITE, createGameResult.gameID());
 
         // Assign player 1 to white
         gameService.joinGame(registerResult1.authToken(), joinGameRequest1);
 
         var registerRequest2 = new RegisterRequest("user2", "pass2", "user2@example.com");
         var registerResult2 = userService.register(registerRequest2);
-        var joinGameRequest2 = new JoinGameRequest("WHITE", createGameResult.gameID());
+        var joinGameRequest2 = new JoinGameRequest(TeamColor.WHITE, createGameResult.gameID());
 
         // Assert assigning player 2 to white throws AlreadyTakenException
         assertThrows(AlreadyTakenException.class, () -> gameService.joinGame(registerResult2.authToken(), joinGameRequest2));
 
-        var joinGameRequest3 = new JoinGameRequest("BLACK", createGameResult.gameID());
+        var joinGameRequest3 = new JoinGameRequest(TeamColor.BLACK, createGameResult.gameID());
 
         // Assign player 1 to black
         gameService.joinGame(registerResult1.authToken(), joinGameRequest3);
 
-        var joinGameRequest4 = new JoinGameRequest("BLACK", createGameResult.gameID());
+        var joinGameRequest4 = new JoinGameRequest(TeamColor.BLACK, createGameResult.gameID());
 
         // Assert assigning player 2 to black throws AlreadyTakenException
         assertThrows(AlreadyTakenException.class, () -> gameService.joinGame(registerResult2.authToken(), joinGameRequest4));

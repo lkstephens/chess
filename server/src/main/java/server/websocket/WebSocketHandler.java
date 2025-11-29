@@ -51,6 +51,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     MakeMoveCommand makeMoveCommand = serializer.fromJson(ctx.message(), MakeMoveCommand.class);
                     makeMove(session, username, makeMoveCommand);
                 }
+                case LEAVE -> {
+                    LeaveCommand leaveCommand = serializer.fromJson(ctx.message(), LeaveCommand.class);
+                    leave(session, username, leaveCommand);
+                }
             }
 
         } catch (UnauthorizedException ex) {
@@ -186,8 +190,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
 
         } catch (BadRequestException | UnauthorizedException ex) {
-            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
-                    ex.getMessage());
+            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
             session.getRemote().sendString(serializer.toJson(errorMessage));
         } catch (InvalidMoveException ex) {
             ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
@@ -199,6 +202,31 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             session.getRemote().sendString(serializer.toJson(errorMessage));
         }
 
+    }
+
+    private void leave(Session session, String username, LeaveCommand leaveCommand) throws IOException {
+        int gameID = leaveCommand.getGameID();
+        try {
+            GameData gameData = gameService.getGame(gameID);
+
+            if (gameData == null) {
+                throw new DataAccessException("Error: game not found");
+            }
+
+            ChessGame.TeamColor playerColor;
+            if (username.equals(gameData.whiteUsername())) {
+                playerColor = ChessGame.TeamColor.WHITE;
+            } else if (username.equals(gameData.blackUsername())) {
+                playerColor = ChessGame.TeamColor.BLACK;
+            } else {
+                throw new UnauthorizedException("Error: only players can leave");
+            }
+
+            gameService.updateGameUsers(gameID, null, playerColor);
+        } catch (BadRequestException | UnauthorizedException | DataAccessException ex) {
+            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
+            session.getRemote().sendString(serializer.toJson(errorMessage));
+        }
     }
 
     private String convertPosToCoordinates(ChessPosition pos) {
