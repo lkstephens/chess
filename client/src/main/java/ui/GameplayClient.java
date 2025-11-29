@@ -51,7 +51,7 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
     public String run() {
         Scanner scanner = new Scanner(System.in);
         var result = "";
-        while (!result.equals("leave")) {
+        while (!result.equals("leave") && !game.gameIsOver()) {
             printPrompt();
             String line = scanner.nextLine();
 

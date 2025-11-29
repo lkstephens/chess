@@ -166,13 +166,21 @@ public class PostLoginClient implements ChessClient {
                 }
 
                 for (int i = 0; i < games.size(); i++) {
-                    var currGame = games.get(i);
-                    var whiteUserPrint = (currGame.whiteUsername() == null) ? "" : currGame.whiteUsername();
-                    var blackUserPrint = (currGame.blackUsername() == null) ? "" : currGame.blackUsername();
+                    var currGameData = games.get(i);
+                    var whiteUserPrint = (currGameData.whiteUsername() == null) ? "" : currGameData.whiteUsername();
+                    var blackUserPrint = (currGameData.blackUsername() == null) ? "" : currGameData.blackUsername();
 
-                    System.out.print((i + 1) + ". Game Name: " + currGame.gameName() + "\t\t"
+                    ChessGame.TeamColor winningTeamColor = currGameData.game().getWinningTeamColor();
+
+                    System.out.print((i + 1) + ". Game Name: " + currGameData.gameName() + "\t\t"
                             + "White: " + whiteUserPrint + "\t\t"
-                            + "Black: " + blackUserPrint + "\n");
+                            + "Black: " + blackUserPrint);
+
+                    if (winningTeamColor != null) {
+                        System.out.printf(SET_TEXT_COLOR_BLUE + "\t\tWinning Team:" + RESET_TEXT_COLOR +
+                                          " %s", winningTeamColor);
+                    }
+                    System.out.print("\n");
                 }
 
                 return "";

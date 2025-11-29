@@ -262,13 +262,20 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
 
             ChessGame.TeamColor playerColor = null;
+            String opposingUsername = null;
             if (username.equals(gameData.whiteUsername())) {
                 playerColor = ChessGame.TeamColor.WHITE;
+                opposingUsername = gameData.blackUsername();
             } else if (username.equals(gameData.blackUsername())) {
                 playerColor = ChessGame.TeamColor.BLACK;
+                opposingUsername = gameData.whiteUsername();
             }
 
             if (playerColor != null) {
+
+                if (opposingUsername == null) {
+                    throw new BadRequestException("Error: You cannot resign until another player joins");
+                }
 
                 // Resign if the game isn't over
                 var game = gameData.game();
@@ -276,7 +283,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     game.resign(playerColor);
                     gameService.updateGame(gameID, game);
                 } else {
-                    throw new BadRequestException("The game is over. You may not resign.");
+                    throw new BadRequestException("Error: The game is over. You may not resign.");
                 }
 
                 // Get the winning team username
@@ -287,7 +294,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 } else if (winningTeamColor == TeamColor.BLACK) {
                     winningUsername = gameData.blackUsername();
                 } else {
-                    throw new Exception("Internal server error. Winner not set after resign");
+                    throw new Exception("Error: Internal server error. Winner not set after resign");
                 }
 
                 var resignNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
