@@ -175,12 +175,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
                 // In checkmate notification
                 if (game.isInCheckmate(opposingColor)) {
+                    gameService.updateGame(gameID, game);
+
                     var checkmateNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                                     String.format("%s is in checkmate! GAME OVER.", opposingUsername));
                     session.getRemote().sendString(serializer.toJson(checkmateNotification));
                     connections.broadcast(gameID, session, checkmateNotification);
                 // In stalemate notification
                 } else if (game.isInStalemate(playerColor) || game.isInStalemate(opposingColor)) {
+                    gameService.updateGame(gameID, game);
+
                     var stalemateNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                             "The game has ended in a stalemate. GAME OVER.");
                     session.getRemote().sendString(serializer.toJson(stalemateNotification));
@@ -270,6 +274,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 var game = gameData.game();
                 if (!game.gameIsOver()) {
                     game.resign(playerColor);
+                    gameService.updateGame(gameID, game);
                 } else {
                     throw new BadRequestException("The game is over. You may not resign.");
                 }
