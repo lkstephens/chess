@@ -178,7 +178,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     gameService.updateGame(gameID, game);
 
                     var checkmateNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                                    String.format("%s is in checkmate! GAME OVER.\n%s wins!", opposingUsername, username));
+                                String.format("%s is in checkmate! GAME OVER.\n%s wins!", opposingUsername, username));
                     session.getRemote().sendString(serializer.toJson(checkmateNotification));
                     connections.broadcast(gameID, session, checkmateNotification);
                 // In stalemate notification

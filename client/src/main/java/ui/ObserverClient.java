@@ -27,6 +27,8 @@ public class ObserverClient implements ChessClient, ServerMessageObserver {
     private final ServerFacade server;
     private final WebSocketFacade webSocket;
 
+    private boolean gameIsOver = false;
+
     public ObserverClient(GameData gameData, String authToken, ServerFacade server) {
         this.gameID = gameData.gameID();
         gameObserving = gameData.game();
@@ -42,9 +44,13 @@ public class ObserverClient implements ChessClient, ServerMessageObserver {
     public String run() {
         Scanner scanner = new Scanner(System.in);
         var result = "";
-        while (!result.equals("leave")) {
+        while (!result.equals("leave") && !gameIsOver) {
             printPrompt();
             String line = scanner.nextLine();
+
+            if (!gameIsOver) {
+                break;
+            }
 
             try {
                 result = eval(line);
@@ -103,6 +109,10 @@ public class ObserverClient implements ChessClient, ServerMessageObserver {
                 NotificationMessage notification = (NotificationMessage) message;
                 System.out.println();
                 System.out.println(SET_TEXT_COLOR_BLUE + notification.getMessage() + RESET_TEXT_COLOR);
+                if (notification.getMessage().contains("GAME OVER")) {
+                    gameIsOver = true;
+                    webSocket.closeSession();
+                }
                 break;
             case LOAD_GAME:
                 LoadGameMessage loadGameMessage = (LoadGameMessage) message;

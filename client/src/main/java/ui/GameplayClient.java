@@ -230,6 +230,7 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
                 System.out.println(SET_TEXT_COLOR_BLUE + notification.getMessage() + RESET_TEXT_COLOR);
                 if (notification.getMessage().contains("GAME OVER")) {
                     gameIsOver = true;
+                    webSocket.closeSession();
                 }
                 break;
             case LOAD_GAME:
@@ -249,7 +250,7 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
                 System.out.println(SET_TEXT_COLOR_RED + errorMessage.getErrorMessage() + RESET_TEXT_COLOR);
                 break;
         }
-        //printPrompt();
+        printPrompt();
     }
 
 }
