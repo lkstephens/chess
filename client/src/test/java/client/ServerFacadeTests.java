@@ -4,6 +4,8 @@ import datamodel.*;
 import org.junit.jupiter.api.*;
 import server.Server;
 
+import chess.ChessGame.TeamColor;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ServerFacadeTests {
@@ -157,15 +159,15 @@ public class ServerFacadeTests {
         facade.createGame(user1Auth.authToken(), new CreateGameRequest("Game_A"));
         facade.createGame(user1Auth.authToken(), new CreateGameRequest("Game_B"));
         // User1 joins Game_A as both WHITE and BLACK
-        facade.joinGame(user1Auth.authToken(), new JoinGameRequest("WHITE", 1));
+        facade.joinGame(user1Auth.authToken(), new JoinGameRequest(TeamColor.WHITE, 1));
         assertDoesNotThrow(
-                () -> facade.joinGame(user1Auth.authToken(), new JoinGameRequest("BLACK", 1)));
+                () -> facade.joinGame(user1Auth.authToken(), new JoinGameRequest(TeamColor.BLACK, 1)));
         // User1 joins Game_B as WHITE
-        facade.joinGame(user1Auth.authToken(), new JoinGameRequest("WHITE", 2));
+        facade.joinGame(user1Auth.authToken(), new JoinGameRequest(TeamColor.WHITE, 2));
         // Register User2
         RegisterResult user2Auth = facade.register(new RegisterRequest("user2", "pass2", "user2@email.com"));
         // User2 joins Game_B as BLACK
-        facade.joinGame(user2Auth.authToken(), new JoinGameRequest("BLACK", 2));
+        facade.joinGame(user2Auth.authToken(), new JoinGameRequest(TeamColor.BLACK, 2));
 
         ListGamesResult listGames = facade.listGames(user2Auth.authToken());
 
@@ -183,6 +185,6 @@ public class ServerFacadeTests {
         assertThrows(ClientBadRequestException.class,
                 () -> facade.joinGame(registerResult.authToken(), new JoinGameRequest(null, 1)));
         assertThrows(ClientBadRequestException.class,
-                () -> facade.joinGame(registerResult.authToken(), new JoinGameRequest("WHITE", 2)));
+                () -> facade.joinGame(registerResult.authToken(), new JoinGameRequest(TeamColor.WHITE, 2)));
     }
 }
