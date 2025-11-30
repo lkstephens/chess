@@ -1,43 +1,17 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
 import client.ServerFacade;
-import client.ServerMessageObserver;
-import client.WebSocketFacade;
 import datamodel.GameData;
-import websocket.messages.ErrorMessage;
-import websocket.messages.LoadGameMessage;
-import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
 
 import java.util.Arrays;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
-public class ObserverClient implements ChessClient, ServerMessageObserver {
-
-    private final int gameID;
-    private ChessGame gameObserving;
-    private ChessBoard boardObserving;
-    private final String gameName;
-    private final String authToken;
-
-    private final ServerFacade server;
-    private final WebSocketFacade webSocket;
-
-    private boolean gameIsOver = false;
+public class ObserverClient extends BaseGameClient implements ChessClient {
 
     public ObserverClient(GameData gameData, String authToken, ServerFacade server) {
-        this.gameID = gameData.gameID();
-        gameObserving = gameData.game();
-        boardObserving = gameObserving.getBoard();
-        this.gameName = gameData.gameName();
-        this.authToken = authToken;
-        this.server = server;
-        webSocket = new WebSocketFacade(this.server.getServerURL(), this);
-        webSocket.connect(this.authToken, gameID);
+        super(gameData, server, authToken);
     }
 
     @Override
@@ -103,30 +77,7 @@ public class ObserverClient implements ChessClient, ServerMessageObserver {
     }
 
     @Override
-    public void notify(ServerMessage message) {
-        switch (message.getServerMessageType()) {
-            case NOTIFICATION:
-                NotificationMessage notification = (NotificationMessage) message;
-                System.out.println();
-                System.out.println(SET_TEXT_COLOR_BLUE + notification.getMessage() + RESET_TEXT_COLOR);
-                if (notification.getMessage().contains("GAME OVER")) {
-                    gameIsOver = true;
-                    webSocket.closeSession();
-                }
-                break;
-            case LOAD_GAME:
-                LoadGameMessage loadGameMessage = (LoadGameMessage) message;
-                this.gameObserving = loadGameMessage.getGame();
-                this.boardObserving = gameObserving.getBoard();
-                System.out.print("\n\n");
-                System.out.println(PostLoginClient.drawBoardWhite(boardObserving));
-                break;
-            case ERROR:
-                ErrorMessage errorMessage = (ErrorMessage) message;
-                System.out.println();
-                System.out.println(SET_TEXT_COLOR_RED + errorMessage.getErrorMessage() + RESET_TEXT_COLOR);
-                break;
-        }
-        printPrompt();
+    void drawBoard() {
+        System.out.println(PostLoginClient.drawBoardWhite(board));
     }
 }

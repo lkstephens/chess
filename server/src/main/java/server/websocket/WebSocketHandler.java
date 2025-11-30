@@ -157,46 +157,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
                 gameService.updateGame(gameID, game);
 
-                // Send new board to everyone
-                LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
-                session.getRemote().sendString(serializer.toJson(loadGameMessage));
-                connections.broadcast(gameID, session, loadGameMessage);
 
-                // Send move notification to everyone but the person that made the move
-                ChessPosition startPosition = move.getStartPosition();
-                ChessPosition endPosition = move.getEndPosition();
-                String startCoordinate = convertPosToCoordinates(startPosition);
-                String endCoordinate = convertPosToCoordinates(endPosition);
-
-                var message = String.format("%s moved %s from %s to %s",
-                                            username, piece, startCoordinate, endCoordinate);
-                var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-                connections.broadcast(gameID, session, notification);
-
-                // In checkmate notification
-                if (game.isInCheckmate(opposingColor)) {
-                    gameService.updateGame(gameID, game);
-
-                    var checkmateNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                                String.format("%s is in checkmate! GAME OVER.\n%s wins!", opposingUsername, username));
-                    session.getRemote().sendString(serializer.toJson(checkmateNotification));
-                    connections.broadcast(gameID, session, checkmateNotification);
-                // In stalemate notification
-                } else if (game.isInStalemate(playerColor) || game.isInStalemate(opposingColor)) {
-                    gameService.updateGame(gameID, game);
-
-                    var stalemateNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                            "The game has ended in a stalemate. GAME OVER.");
-                    session.getRemote().sendString(serializer.toJson(stalemateNotification));
-                    connections.broadcast(gameID, session, stalemateNotification);
-                // In check notification
-                } else if (game.isInCheck(opposingColor)) {
-                    var checkNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                            String.format("%s is in check!", opposingUsername));
-                    session.getRemote().sendString(serializer.toJson(checkNotification));
-                    connections.broadcast(gameID, session, checkNotification);
-                }
-
+                sendMoveMessages(session, username, game, gameID, move, piece, playerColor, opposingUsername,
+                                 opposingColor);
 
             } else {
                 throw new UnauthorizedException("Error: it is not your turn");
@@ -214,7 +177,51 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     "Error: failed to connect to chess game, move was not made.");
             session.getRemote().sendString(serializer.toJson(errorMessage));
         }
+    }
 
+    private void sendMoveMessages(Session session, String username, ChessGame game, int gameID, ChessMove move,
+                        ChessPiece piece, TeamColor playerColor, String opposingUsername, TeamColor opposingColor)
+                        throws IOException, BadRequestException, DataAccessException {
+
+        // Send new board to everyone
+        LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
+        session.getRemote().sendString(serializer.toJson(loadGameMessage));
+        connections.broadcast(gameID, session, loadGameMessage);
+
+        // Send move notification to everyone but the person that made the move
+        ChessPosition startPosition = move.getStartPosition();
+        ChessPosition endPosition = move.getEndPosition();
+        String startCoordinate = convertPosToCoordinates(startPosition);
+        String endCoordinate = convertPosToCoordinates(endPosition);
+
+        var message = String.format("%s moved %s from %s to %s",
+                username, piece, startCoordinate, endCoordinate);
+        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        connections.broadcast(gameID, session, notification);
+
+        // In checkmate notification
+        if (game.isInCheckmate(opposingColor)) {
+            gameService.updateGame(gameID, game);
+
+            var checkmateNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                    String.format("%s is in checkmate! GAME OVER.\n%s wins!", opposingUsername, username));
+            session.getRemote().sendString(serializer.toJson(checkmateNotification));
+            connections.broadcast(gameID, session, checkmateNotification);
+            // In stalemate notification
+        } else if (game.isInStalemate(playerColor) || game.isInStalemate(opposingColor)) {
+            gameService.updateGame(gameID, game);
+
+            var stalemateNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                    "The game has ended in a stalemate. GAME OVER.");
+            session.getRemote().sendString(serializer.toJson(stalemateNotification));
+            connections.broadcast(gameID, session, stalemateNotification);
+            // In check notification
+        } else if (game.isInCheck(opposingColor)) {
+            var checkNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                    String.format("%s is in check!", opposingUsername));
+            session.getRemote().sendString(serializer.toJson(checkNotification));
+            connections.broadcast(gameID, session, checkNotification);
+        }
     }
 
     private void leave(Session session, String username, LeaveCommand leaveCommand) throws IOException {

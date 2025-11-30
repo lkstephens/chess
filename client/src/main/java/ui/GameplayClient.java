@@ -2,13 +2,7 @@ package ui;
 
 import chess.*;
 import client.ServerFacade;
-import client.ServerMessageObserver;
-import client.WebSocketFacade;
 import datamodel.GameData;
-import websocket.messages.ErrorMessage;
-import websocket.messages.LoadGameMessage;
-import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
 
 import java.util.*;
 
@@ -16,32 +10,13 @@ import static ui.EscapeSequences.*;
 import static ui.EscapeSequences.SET_TEXT_COLOR_BLUE;
 import static ui.EscapeSequences.SET_TEXT_COLOR_MAGENTA;
 
-public class GameplayClient implements ChessClient, ServerMessageObserver {
+public class GameplayClient extends BaseGameClient implements ChessClient {
 
-    private int gameID;
-    private ChessGame game;
-    private final String gameName;
-    private ChessBoard board;
     private final ChessGame.TeamColor clientColor;
-    private final String authToken;
-
-    private final ServerFacade server;
-    private final WebSocketFacade webSocket;
-
-    private boolean gameIsOver = false;
 
     public GameplayClient(GameData gameData, ChessGame.TeamColor color, ServerFacade server, String authToken) {
-        this.gameID = gameData.gameID();
-        this.game = gameData.game();
-        this.gameName = gameData.gameName();
-        board = game.getBoard();
-        clientColor = color;
-        this.server = server;
-        this.authToken = authToken;
-
-        webSocket = new WebSocketFacade(this.server.getServerURL(), this);
-
-        webSocket.connect(this.authToken, gameID);
+        super(gameData, server, authToken);
+        this.clientColor = color;
     }
 
     @Override
@@ -249,35 +224,12 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
     }
 
     @Override
-    public void notify(ServerMessage message) {
-        switch (message.getServerMessageType()) {
-            case NOTIFICATION:
-                NotificationMessage notification = (NotificationMessage) message;
-                System.out.println();
-                System.out.println(SET_TEXT_COLOR_BLUE + notification.getMessage() + RESET_TEXT_COLOR);
-                if (notification.getMessage().contains("GAME OVER")) {
-                    gameIsOver = true;
-                    webSocket.closeSession();
-                }
-                break;
-            case LOAD_GAME:
-                LoadGameMessage loadGameMessage = (LoadGameMessage) message;
-                this.game = loadGameMessage.getGame();
-                this.board = game.getBoard();
-                System.out.print("\n\n");
-                if (clientColor == ChessGame.TeamColor.WHITE) {
-                    System.out.println(PostLoginClient.drawBoardWhite(board));
-                } else {
-                    System.out.println(PostLoginClient.drawBoardBlack(board));
-                }
-                break;
-            case ERROR:
-                ErrorMessage errorMessage = (ErrorMessage) message;
-                System.out.println();
-                System.out.println(SET_TEXT_COLOR_RED + errorMessage.getErrorMessage() + RESET_TEXT_COLOR);
-                break;
+    void drawBoard() {
+        if (clientColor == ChessGame.TeamColor.WHITE) {
+            System.out.println(PostLoginClient.drawBoardWhite(board));
+        } else {
+            System.out.println(PostLoginClient.drawBoardBlack(board));
         }
-        printPrompt();
     }
 
 }

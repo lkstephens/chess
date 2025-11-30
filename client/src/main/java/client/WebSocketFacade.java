@@ -10,21 +10,18 @@ import websocket.commands.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Scanner;
 
 import static websocket.commands.UserGameCommand.CommandType.*;
 
 public class WebSocketFacade extends Endpoint {
 
     Session session;
-    private ServerMessageObserver observer;
     private final Gson serializer = new Gson();
 
     public WebSocketFacade(String url, ServerMessageObserver observer) {
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/ws");
-            this.observer = observer;
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);
@@ -54,7 +51,6 @@ public class WebSocketFacade extends Endpoint {
 
         } catch (DeploymentException | IOException | URISyntaxException ex) {
             System.out.print("Error setting up WebSocket");
-            ex.printStackTrace();
         }
     }
 
@@ -68,7 +64,7 @@ public class WebSocketFacade extends Endpoint {
             var connectCommand = new ConnectCommand(CONNECT, authToken, gameID);
             this.session.getBasicRemote().sendText(serializer.toJson(connectCommand));
         } catch (IOException ex) {
-            System.out.println("Connection lost"); // <-- CHANGEME
+            System.out.println("Connection lost");
         }
     }
 
@@ -77,7 +73,7 @@ public class WebSocketFacade extends Endpoint {
             var makeMoveCommand = new MakeMoveCommand(MAKE_MOVE, authToken, gameID, move);
             this.session.getBasicRemote().sendText(serializer.toJson(makeMoveCommand));
         } catch (IOException ex) {
-            System.out.println("Connection lost");
+            System.out.println("Connection lost while making move");
         }
     }
 
@@ -86,7 +82,7 @@ public class WebSocketFacade extends Endpoint {
             var leaveCommand = new LeaveCommand(LEAVE, authToken, gameID);
             this.session.getBasicRemote().sendText(serializer.toJson(leaveCommand));
         } catch (IOException ex) {
-            System.out.println("Connection lost");
+            System.out.println("Connection lost while attempting to leave");
         }
     }
 
@@ -95,7 +91,7 @@ public class WebSocketFacade extends Endpoint {
             var resignCommand = new ResignCommand(RESIGN, authToken, gameID);
             this.session.getBasicRemote().sendText(serializer.toJson(resignCommand));
         } catch (IOException ex) {
-            System.out.println("Connection lost");
+            System.out.println("Connection lost while attempting to resign");
         }
     }
 
@@ -108,9 +104,5 @@ public class WebSocketFacade extends Endpoint {
             System.out.println("Error: could not close ws session");
         }
     }
-
-
-
-
 
 }
