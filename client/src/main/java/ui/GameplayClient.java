@@ -31,7 +31,7 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
     private final ServerFacade server;
     private final WebSocketFacade webSocket;
 
-
+    private boolean gameIsOver = false;
 
     public GameplayClient(GameData gameData, ChessGame.TeamColor color, ServerFacade server, String authToken) {
         this.gameID = gameData.gameID();
@@ -51,9 +51,13 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
     public String run() {
         Scanner scanner = new Scanner(System.in);
         var result = "";
-        while (!result.equals("leave") && !game.gameIsOver()) {
+        while (!result.equals("leave") && !gameIsOver) {
             printPrompt();
             String line = scanner.nextLine();
+
+            if (gameIsOver) {
+                break;
+            }
 
             try {
                 result = eval(line);
@@ -224,6 +228,9 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
                 NotificationMessage notification = (NotificationMessage) message;
                 System.out.println();
                 System.out.println(SET_TEXT_COLOR_BLUE + notification.getMessage() + RESET_TEXT_COLOR);
+                if (notification.getMessage().contains("GAME OVER")) {
+                    gameIsOver = true;
+                }
                 break;
             case LOAD_GAME:
                 LoadGameMessage loadGameMessage = (LoadGameMessage) message;
@@ -242,7 +249,7 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
                 System.out.println(SET_TEXT_COLOR_RED + errorMessage.getErrorMessage() + RESET_TEXT_COLOR);
                 break;
         }
-        printPrompt();
+        //printPrompt();
     }
 
 }
