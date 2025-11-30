@@ -11,8 +11,6 @@ import datamodel.ListGamesResult;
 import datamodel.AuthData;
 import datamodel.GameData;
 
-import javax.xml.crypto.Data;
-
 public class GameService {
 
     private final GameDAO gameDAO;

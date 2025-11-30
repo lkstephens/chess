@@ -10,7 +10,7 @@ import java.util.HashSet;
 
 public class ConnectionManager {
 
-    private HashMap<Integer, HashSet<Session>> connections = new HashMap<>();
+    private final HashMap<Integer, HashSet<Session>> connections = new HashMap<>();
 
     public void add(int gameID, Session session) {
         HashSet<Session> sessions = connections.get(gameID);
