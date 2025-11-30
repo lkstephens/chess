@@ -1,9 +1,6 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.ChessPosition;
+import chess.*;
 import client.ServerFacade;
 import client.ServerMessageObserver;
 import client.WebSocketFacade;
@@ -168,8 +165,15 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
             if (validateCoordinates(params)) {
                 ChessPosition startPosition = convertToPosition(params[0]);
                 ChessPosition endPosition = convertToPosition(params[1]);
+                ChessPiece piece = game.getBoard().getPiece(startPosition);
+                ChessPiece.PieceType promotionPieceType = null;
 
-                ChessMove move = new ChessMove(startPosition, endPosition, null);
+                if (piece != null && piece.getPieceType() == ChessPiece.PieceType.PAWN &&
+                   ((clientColor == ChessGame.TeamColor.WHITE && endPosition.getRow() == 8) ||
+                     clientColor == ChessGame.TeamColor.BLACK && endPosition.getRow() == 1)) {
+                    promotionPieceType = askPromotionPiece();
+                }
+                ChessMove move = new ChessMove(startPosition, endPosition, promotionPieceType);
                 webSocket.makeMove(authToken, gameID, move);
                 return "";
             }
@@ -219,6 +223,29 @@ public class GameplayClient implements ChessClient, ServerMessageObserver {
         int col = colLetter - 'A' + 1;
 
         return new ChessPosition(row, col);
+    }
+
+    private ChessPiece.PieceType askPromotionPiece() {
+        Scanner scanner = new Scanner(System.in);
+        var result = "";
+        while (true) {
+            System.out.print("Enter pawn promotion piece: ");
+            result = scanner.nextLine().toUpperCase();
+
+            if (result.equals("QUEEN") || result.equals("ROOK") ||
+                result.equals("BISHOP") || result.equals("KNIGHT")) {
+                return switch (result) {
+                    case "QUEEN" -> ChessPiece.PieceType.QUEEN;
+                    case "ROOK" -> ChessPiece.PieceType.ROOK;
+                    case "BISHOP" -> ChessPiece.PieceType.BISHOP;
+                    case "KNIGHT" -> ChessPiece.PieceType.KNIGHT;
+                    default -> null;
+                };
+            } else {
+                System.out.println(SET_TEXT_COLOR_BLUE + "\nValid promotion pieces: [queen|rook|bishop|knight]" +
+                                   RESET_TEXT_COLOR);
+            }
+        }
     }
 
     @Override
