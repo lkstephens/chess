@@ -1,10 +1,10 @@
 package ui;
 
+import chess.ChessPosition;
 import client.ServerFacade;
 import datamodel.GameData;
 
-import java.util.Arrays;
-import java.util.Scanner;
+import java.util.*;
 
 import static ui.EscapeSequences.*;
 
@@ -48,10 +48,18 @@ public class ObserverClient extends BaseGameClient implements ChessClient {
     @Override
     public String help() {
         return
-                RESET_TEXT_COLOR
-              + "Type"
-              + SET_TEXT_COLOR_BLUE + " leave "
-              + RESET_TEXT_COLOR + "to stop observing " + "\n";
+                SET_TEXT_COLOR_BLUE + "redraw"
+              + RESET_TEXT_COLOR + " - chess board\n"
+
+              + SET_TEXT_COLOR_BLUE + "highlight "
+              + SET_TEXT_COLOR_MAGENTA + "<a-h1-8>"
+              + RESET_TEXT_COLOR + " - legal moves\n"
+
+              + SET_TEXT_COLOR_BLUE + "leave"
+              + RESET_TEXT_COLOR + " - game\n"
+
+              + SET_TEXT_COLOR_BLUE + "help "
+              + RESET_TEXT_COLOR + " - with possible commands\n";
     }
 
     @Override
@@ -60,24 +68,30 @@ public class ObserverClient extends BaseGameClient implements ChessClient {
         String cmd = (tokens.length > 0) ? tokens[0] : "help";
         String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
 
-        if (cmd.equals("leave")) {
-            return leave(params);
-        } else {
-            return "\n" + help();
-        }
+        return switch (cmd) {
+            case "redraw" -> redrawBoard(params);
+            case "highlight" -> highlight(params);
+            case "leave" -> leave(params);
+            default -> "\n" + help();
+        };
     }
 
-    public String leave(String... params) {
+    public String redrawBoard(String... params) {
         if (params.length == 0) {
-            webSocket.leave(authToken, gameID);
-            webSocket.closeSession();
-            return "leave";
+            System.out.println();
+            return PostLoginClient.drawBoardWhite(board);
         }
-        return SET_TEXT_COLOR_RED + "Expected no parameters for \"leave\"";
+
+        return SET_TEXT_COLOR_RED + "Expected no parameters for \"redraw\".";
     }
 
     @Override
     void drawBoard() {
         System.out.println(PostLoginClient.drawBoardWhite(board));
+    }
+
+    @Override
+    String drawBoardHighlight(ChessPosition[] highlightPosArray) {
+        return PostLoginClient.drawBoardWhite(board, highlightPosArray);
     }
 }

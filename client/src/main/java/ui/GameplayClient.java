@@ -166,42 +166,6 @@ public class GameplayClient extends BaseGameClient implements ChessClient {
         return SET_TEXT_COLOR_RED + "Expected no parameters for \"resign\"";
     }
 
-    public String leave(String... params) {
-        if (params.length == 0) {
-            webSocket.leave(authToken, gameID);
-            webSocket.closeSession();
-            return "leave";
-        }
-        return SET_TEXT_COLOR_RED + "Expected no parameters for \"leave\"";
-    }
-
-    private boolean validateCoordinates(String... coordinateArray) {
-
-        for (String coordinate : coordinateArray) {
-            coordinate = coordinate.toUpperCase();
-            if (coordinate.length() != 2) {
-                return false;
-            } else {
-                char rowChar = coordinate.charAt(0);
-                int colInt = Character.getNumericValue(coordinate.charAt(1));
-
-                if (rowChar < 'A' || rowChar > 'H' || colInt < 1 || colInt > 8) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    private ChessPosition convertToPosition(String coordinate) {
-        coordinate = coordinate.toUpperCase();
-        int row = Character.getNumericValue(coordinate.charAt(1));
-        char colLetter = coordinate.charAt(0);
-        int col = colLetter - 'A' + 1;
-
-        return new ChessPosition(row, col);
-    }
-
     private ChessPiece.PieceType askPromotionPiece() {
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -238,6 +202,15 @@ public class GameplayClient extends BaseGameClient implements ChessClient {
             System.out.println(PostLoginClient.drawBoardWhite(board));
         } else {
             System.out.println(PostLoginClient.drawBoardBlack(board));
+        }
+    }
+
+    @Override
+    String drawBoardHighlight(ChessPosition[] highlightPosArray) {
+        if (clientColor == ChessGame.TeamColor.WHITE) {
+            return PostLoginClient.drawBoardWhite(board);
+        } else {
+            return PostLoginClient.drawBoardBlack(board);
         }
     }
 

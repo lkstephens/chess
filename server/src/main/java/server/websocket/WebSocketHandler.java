@@ -194,8 +194,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         String startCoordinate = convertPosToCoordinates(startPosition);
         String endCoordinate = convertPosToCoordinates(endPosition);
 
-        var message = String.format("%s moved %s from %s to %s",
-                username, piece, startCoordinate, endCoordinate);
+        var message = String.format("%s (%s) moved %s from %s to %s",
+                username, playerColor, piece, startCoordinate, endCoordinate);
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(gameID, session, notification);
 
@@ -204,7 +204,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             gameService.updateGame(gameID, game);
 
             var checkmateNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                    String.format("%s is in checkmate! GAME OVER.\n%s wins!", opposingUsername, username));
+                    String.format("%s (%s) is in checkmate! GAME OVER.\n%s (%s) wins!", opposingUsername, opposingColor,
+                            username, playerColor));
             session.getRemote().sendString(serializer.toJson(checkmateNotification));
             connections.broadcast(gameID, session, checkmateNotification);
             // In stalemate notification
@@ -218,7 +219,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             // In check notification
         } else if (game.isInCheck(opposingColor)) {
             var checkNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                    String.format("%s is in check!", opposingUsername));
+                    String.format("%s (%s) is in check!", opposingUsername, opposingColor));
             session.getRemote().sendString(serializer.toJson(checkNotification));
             connections.broadcast(gameID, session, checkNotification);
         }
@@ -250,7 +251,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
             // Broadcast leave message
             var leaveNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                    String.format("%s has left the game.", username));
+                    String.format("%s (%s) has left the game.", username, playerColor));
             connections.broadcast(gameID, session, leaveNotification);
 
         } catch (BadRequestException | DataAccessException ex) {
@@ -270,12 +271,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
             ChessGame.TeamColor playerColor = null;
             String opposingUsername = null;
+            TeamColor opposingColor = null;
             if (username.equals(gameData.whiteUsername())) {
                 playerColor = ChessGame.TeamColor.WHITE;
                 opposingUsername = gameData.blackUsername();
+                opposingColor = TeamColor.BLACK;
             } else if (username.equals(gameData.blackUsername())) {
                 playerColor = ChessGame.TeamColor.BLACK;
                 opposingUsername = gameData.whiteUsername();
+                opposingColor = TeamColor.WHITE;
             }
 
             if (playerColor != null) {
@@ -305,7 +309,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 }
 
                 var resignNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                      String.format("%s has resigned from the game. GAME OVER.\n%s wins!", username, winningUsername));
+                      String.format("%s (%s) has resigned from the game. GAME OVER.\n%s (%s) wins!",
+                              username, playerColor, winningUsername, opposingColor));
                 session.getRemote().sendString(serializer.toJson(resignNotification));
                 connections.broadcast(gameID, session, resignNotification);
 
