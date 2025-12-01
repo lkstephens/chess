@@ -21,28 +21,7 @@ public class GameplayClient extends BaseGameClient implements ChessClient {
 
     @Override
     public String run() {
-        Scanner scanner = new Scanner(System.in);
-        var result = "";
-        while (!result.equals("leave") && !gameIsOver) {
-            printPrompt();
-            String line = scanner.nextLine();
-
-            if (gameIsOver) {
-                break;
-            }
-
-            try {
-                result = eval(line);
-                if (!result.equals("leave")) {
-                    System.out.print(result);
-                }
-
-            } catch (Throwable e) {
-                var msg = e.toString();
-                System.out.print(msg);
-            }
-        }
-        return result.equals("leave") ? "leave" : "gameover";
+        return repl();
     }
 
     @Override

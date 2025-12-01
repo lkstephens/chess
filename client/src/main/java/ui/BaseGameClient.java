@@ -16,6 +16,7 @@ import websocket.messages.ServerMessage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Scanner;
 
 import static ui.EscapeSequences.RESET_TEXT_COLOR;
 import static ui.EscapeSequences.SET_TEXT_COLOR_BLUE;
@@ -46,7 +47,36 @@ public abstract class BaseGameClient implements ServerMessageObserver {
         this.webSocket.connect(this.authToken, gameID);
     }
 
+    public abstract String run();
+
+    String repl() {
+        Scanner scanner = new Scanner(System.in);
+        var result = "";
+        while (!result.equals("leave") && !gameIsOver) {
+            printPrompt();
+            String line = scanner.nextLine();
+
+            if (gameIsOver) {
+                break;
+            }
+
+            try {
+                result = eval(line);
+                if (!result.equals("leave")) {
+                    System.out.print(result);
+                }
+
+            } catch (Throwable e) {
+                var msg = e.toString();
+                System.out.print(msg);
+            }
+        }
+        return result.equals("leave") ? "leave" : "gameover";
+    }
+
     public abstract void printPrompt();
+
+    public abstract String eval(String input);
 
     String highlight(String... coordinates) {
 
