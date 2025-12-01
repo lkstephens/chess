@@ -158,7 +158,9 @@ public class GameplayClient extends BaseGameClient implements ChessClient {
 
     public String resign(String... params) {
         if (params.length == 0) {
-            webSocket.resign(authToken, gameID);
+            if (confirmResign()) {
+                webSocket.resign(authToken, gameID);
+            }
             return "";
         }
         return SET_TEXT_COLOR_RED + "Expected no parameters for \"resign\"";
@@ -221,6 +223,13 @@ public class GameplayClient extends BaseGameClient implements ChessClient {
                                    RESET_TEXT_COLOR);
             }
         }
+    }
+
+    private boolean confirmResign() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Are you sure you want to resign? Type \"y\" to confirm: ");
+        var result = scanner.nextLine().toUpperCase();
+        return result.equals("Y");
     }
 
     @Override
