@@ -210,7 +210,16 @@ public class PostLoginClient implements ChessClient {
             }
 
             GameData gameDataToJoin = gameDataList.get(gameNum-1);
-            ChessGame.TeamColor playerColor = ChessGame.TeamColor.valueOf(params[1].toUpperCase());
+
+            String playerColorString = params[1];
+            ChessGame.TeamColor playerColor;
+            if (playerColorString.equalsIgnoreCase("WHITE") ||
+                playerColorString.equalsIgnoreCase("BLACK")) {
+                playerColor = ChessGame.TeamColor.valueOf(params[1].toUpperCase());
+            } else {
+                return SET_TEXT_COLOR_RED + "Invalid player color. Player colors: [WHITE|BLACK]";
+            }
+
 
             JoinGameRequest request = new JoinGameRequest(playerColor, gameDataToJoin.gameID());
 

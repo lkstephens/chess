@@ -235,10 +235,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
 
             ChessGame.TeamColor playerColor = null;
+            String playerColorString = "OBSERVER";
             if (username.equals(gameData.whiteUsername())) {
                 playerColor = ChessGame.TeamColor.WHITE;
+                playerColorString = "WHITE";
             } else if (username.equals(gameData.blackUsername())) {
                 playerColor = ChessGame.TeamColor.BLACK;
+                playerColorString = "BLACK";
             }
 
             // Update game if it's a player
@@ -251,7 +254,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
             // Broadcast leave message
             var leaveNotification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                    String.format("%s (%s) has left the game.", username, playerColor));
+                    String.format("%s (%s) has left the game.", username, playerColorString));
             connections.broadcast(gameID, session, leaveNotification);
 
         } catch (BadRequestException | DataAccessException ex) {

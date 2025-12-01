@@ -22,7 +22,7 @@ public class ObserverClient extends BaseGameClient implements ChessClient {
             printPrompt();
             String line = scanner.nextLine();
 
-            if (!gameIsOver) {
+            if (gameIsOver) {
                 break;
             }
 
